@@ -383,6 +383,9 @@ footer a {
   background: rgba(51, 58, 83, 0.61);
   backdrop-filter: blur(59px);
   z-index: 1;
+
+  animation-name: fadein;
+  animation-duration: 300ms;
 }
 
 #pushModalContent {
@@ -396,6 +399,19 @@ footer a {
   padding-top: 24px;
 
   z-index: 2;
+
+  animation-name: fadein;
+  animation-duration: 300ms;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 #pushModalContentHeader h3 {
