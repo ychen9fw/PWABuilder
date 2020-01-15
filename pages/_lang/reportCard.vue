@@ -62,16 +62,16 @@
             <p>Already have a PWA? Skip ahead!</p>
           </div>-->
 
-          <footer>
-            <p>
-              PWA Builder was founded by Microsoft as a community guided, open
-              source project to help move PWA adoption forward.
-              <a href="https://privacy.microsoft.com/en-us/privacystatement"
-                >Our Privacy Statement</a
-              >
-            </p>
-          </footer>
         </div>
+        <footer>
+          <p>
+            PWA Builder was founded by Microsoft as a community guided, open
+            source project to help move PWA adoption forward.
+            <a href="https://privacy.microsoft.com/en-us/privacystatement"
+              >Our Privacy Statement</a
+            >
+          </p>
+        </footer>
       </div>
 
       <div v-if="gotURL" id="infoSection">
@@ -261,7 +261,19 @@ export default class extends Vue {
           url: `${location.href}?url=${this.url}`
         });
       } catch (err) {
-        console.error("trouble sharing with the web share api", err);
+        // fallback to legacy share if ^ fails
+        if ((navigator as any).clipboard) {
+          try {
+            await (navigator as any).clipboard.writeText(
+              `${location.href}?url=${this.url}`
+            );
+            this.showToast();
+          } catch (err) {
+            console.error(err);
+          }
+        } else {
+          window.open(`${location.href}?url=${this.url}`, "__blank");
+        }
       }
     } else {
       if ((navigator as any).clipboard) {
@@ -280,18 +292,11 @@ export default class extends Vue {
   }
 
   async showToast() {
-    // show toast
-    /*this.shared = true;
-
-    setTimeout(() => {
-      this.shared = false;
-    }, 1200);*/
-
     const toastCtrl = document.querySelector("ion-toast-controller");
     await (toastCtrl as any).componentOnReady();
 
     const toast = await (toastCtrl as any).create({
-      duration: 1300,
+      duration: 2300,
       message: "URL copied for sharing"
     });
 
@@ -380,6 +385,7 @@ export default class extends Vue {
 
 
 Vue.prototype.$awa = function(config) {
+  console.log('config', config);
   awa.ct.capturePageView(config);
   return;
 };
@@ -441,7 +447,7 @@ declare var awa: any;
 }
 
 #hubContainer {
-  height: 100vh;
+  height: 100%;
 }
 
 #reportShareButtonContainer {
@@ -465,7 +471,7 @@ declare var awa: any;
   border: none;
   margin-top: 24px;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-around;
   align-items: center;
   color: white;
   cursor: pointer;
@@ -484,67 +490,11 @@ declare var awa: any;
 }
 
 .backgroundIndex {
-   @include backgroundLeftPoint(20%, 40vh); 
+   @include backgroundLeftPoint(26%, 20vh); 
 }
 
 .backgroundReport {
-  @include backgroundRightPoint(80%, 49vh);
-}
-
-@media (min-width: 1336px) {
-  /*#hubContainer {
-    height: 130vh;
-  }*/
-
-  .backgroundIndex {
-    @include backgroundLeftPoint(26%, 70vh);
-
-    background-size: 26.05% 162%, 74.05% 162%, 100% 100% !important;
-  }
-
-  .backgroundReport {
-    @include backgroundRightPoint(80%, 70vh);
-
-    background-size: 80.05% 146%, 20.05% 146%, 100% 100% !important;
-  }
-}
-
-@media (max-height: 780px) {
-  #hubContainer {
-    height: 100vh;
-  }
-
-  #inputSection {
-    grid-template-rows: 80% 20%;
-  }
-
-  .backgroundIndex {
-    @include backgroundLeftPoint(30%, 30vh);
-  }
-
-  .backgroundReport {
-    @include backgroundRightPoint(80%, 30vh);
-  }
-}
-
-@media (max-height: 600px) {
-  .backgroundIndex {
-    @include backgroundLeftPoint(30%, 23vh);
-  }
-
-  .backgroundReport {
-    @include backgroundRightPoint(80%, 20vh);
-  }
-}
-
-@media (max-height: 530px) {
-  .backgroundIndex {
-    @include backgroundLeftPoint(30%, 0vh);  
-  }
-
-  footer {
-    display: none;
-  }
+  @include backgroundRightPoint(80%, 37vh);
 }
 
 #bottomWrapper {
@@ -670,13 +620,43 @@ h2 {
     }
   }
 
+  footer {
+      position: absolute;
+      bottom: 10px;
+      margin-right: 32px;
+      color: rgba(60, 60, 60, 0.6);
+      background: transparent;
+
+      p {
+        text-align: center;
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      a {
+        box-shadow: none;
+        color: inherit;
+        text-decoration: underline;
+      }
+    }
+
+    @media (max-width: 425px) {
+      footer {
+        margin-right: initial;
+        margin-left: initial;
+      }
+      footer p {
+        width: 75%;
+        margin-bottom: 0px;
+      }
+    }
+
   #bottomHalfHome {
     grid-row: 2;
 
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 465px;
     margin-top: 34px;
     position: absolute;
     bottom: 10px;
@@ -739,36 +719,7 @@ h2 {
       }
     }
 
-    footer {
-      color: rgba(60, 60, 60, 0.6);
-      background: transparent;
 
-      p {
-        text-align: center;
-        font-size: 12px;
-        line-height: 18px;
-      }
-
-      a {
-        box-shadow: none;
-
-        color: inherit;
-
-        text-decoration: underline;
-      }
-    }
-
-    @media (max-width: 425px) {
-      footer p {
-        width: 62%;
-      }
-    }
-
-    @media (max-width: 1280px) {
-      footer {
-        margin-top: 56px;
-      }
-    }
   }
 }
 
@@ -1045,6 +996,26 @@ h2 {
   }
   100% {
     margin-left: 0rem;
+  }
+}
+
+@media (max-height: 600px) {
+  .backgroundIndex {
+    @include backgroundLeftPoint(30%, 0vh);  
+  }
+
+  .backgroundReport {
+    @include backgroundRightPoint(80%, 25vh);
+  }
+
+  footer {
+    display: none;
+  }
+}
+
+@media (max-height: 475px) {
+  .backgroundReport {
+    @include backgroundRightPoint(80%, 0vh);
   }
 }
 </style>

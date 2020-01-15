@@ -13,6 +13,7 @@
       <div id="mainTabsBar">
         <nuxt-link to="/">My Hub</nuxt-link>
         <nuxt-link
+          @click="$awa( { 'referrerUri': `https://pwabuilder.com/features` })"
           to="/features"
         >Feature Store</nuxt-link>
       </div>
@@ -185,6 +186,13 @@ export default class extends Vue {
     }
   }
 }
+
+declare var awa: any;
+
+Vue.prototype.$awa = function(config) {
+  awa.ct.capturePageView(config);
+  return;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -474,10 +482,6 @@ header {
 }
 
 @media (max-width: 425px) {
-  // #subHeader #tabsBar {
-  //   display: none;
-  // }
-
   #overallScore {
     padding-right: 0px !important;
     padding-left: 20px;
@@ -516,6 +520,22 @@ a {
 }
 
 @media (max-width: 425px) {
+  #icons a {
+    position: fixed;
+    left: 5px;
+    bottom: 10px;
+    width: 16px;
+    height: 16px;
+  }
+
+  #icons a svg {
+    width: 100%;
+    height: 100%;
+    color: black;
+  }
+}
+
+@media (max-height: 350px) {
   #icons a {
     display: none;
   }

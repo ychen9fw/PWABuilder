@@ -1,14 +1,14 @@
 <template>
-  <div>
+  <div v-if="this.$route.path !== '/'">
     <button
       @click="install()"
-      v-if="this.$route.path !== '/'"
       id="installButton"
     >
-      Install PWABuilder
     </button>
 
-    <pwa-install usecustom manifestpath="/manifest.webmanifest"></pwa-install>
+    <pwa-install usecustom manifestpath="/manifest.webmanifest">
+      
+    </pwa-install>
   </div>
 </template>
 
@@ -22,7 +22,6 @@ export default class extends Vue {
     const pwaInstall: any = this.$el.querySelector(
       "pwa-install"
     ) as HTMLElement;
-    console.log();
 
     pwaInstall.openPrompt();
   }
@@ -46,9 +45,41 @@ export default class extends Vue {
   margin-right: 20px;
 }
 
-@media (max-width: 425px) {
+#installButton::after {
+  content: 'Install PWABuilder';
+}
+
+@media (max-width: 820px) {
+  #installButton::after {
+    content: 'Install';
+  }
+
   #installButton {
-    display: none;
+      padding-left: 10px;
+      padding-right: 10px;
+      width: auto;
   }
 }
+
+@media (max-width: 560px) {
+  #installButton::after {
+    content: '';
+  }
+
+  #installButton {
+      width: 16px;
+      height: 16px;
+      padding-left: initial;
+      padding-right: initial;
+      background-image: url('~/assets/images/downloadicon.png');
+      background-size: 70%;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: fixed;
+      bottom: 10px;
+      right: 5px;
+      margin-right: 0px;
+  }
+}
+
 </style>

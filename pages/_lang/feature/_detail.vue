@@ -1,11 +1,16 @@
 <template>
   <div id="mainDiv">
-    <HubHeader showFeatureDetailButton="true" :showFeatureDetailGraphButton="onGraph"></HubHeader>
+    <HubHeader
+      showFeatureDetailButton="true"
+      :showFeatureDetailGraphButton="onGraph"
+    ></HubHeader>
 
     <ion-toast-controller></ion-toast-controller>
 
     <div v-if="onAuth" id="clientIdBlock">
-      <button v-if="!idGenerated" @click="generateID()">Generate Client ID</button>
+      <button v-if="!idGenerated" @click="generateID()">
+        Generate Client ID
+      </button>
       <div id="generatedDiv" v-else @click="generateID()">ID Generated</div>
     </div>
 
@@ -132,14 +137,31 @@ export default class extends Vue {
   docsContent: string | null = null;
 
   async mounted() {
-    (<HTMLButtonElement>document.getElementById("backButton")).addEventListener("click", this.goBack);
-    (<HTMLButtonElement>document.getElementById("featDetailShareButton")).addEventListener("click", this.share);
-    (<HTMLButtonElement>document.getElementById("githubSnippitButton")).addEventListener("click", this.goToGithub);
-    this.$nextTick(function () {
+    (<HTMLButtonElement>document.getElementById("backButton")).addEventListener(
+      "click",
+      this.goBack
+    );
+    (<HTMLButtonElement>(
+      document.getElementById("featDetailShareButton")
+    )).addEventListener("click", this.share);
+    (<HTMLButtonElement>(
+      document.getElementById("githubSnippitButton")
+    )).addEventListener("click", this.goToGithub);
+    this.$nextTick(function() {
       if (this.onGraph) {
-        (<HTMLButtonElement>document.getElementById("featDetailDocsButton")).addEventListener("click", this.goToDocs);
+        (<HTMLButtonElement>(
+          document.getElementById("featDetailDocsButton")
+        )).addEventListener("click", this.goToDocs);
       }
-    })
+    });
+
+    const overrideValues = {
+      uri: window.location.href,
+      pageName: this.$route.params.featureDetail,
+      pageHeight: window.innerHeight
+    };
+
+    this.$awa(overrideValues);
 
     this.snippitMap.forEach(async snippit => {
       if (snippit.mappedName === this.$route.params.featureDetail) {
@@ -267,6 +289,14 @@ export default class extends Vue {
     }
   }
 }
+
+Vue.prototype.$awa = function(config) {
+  console.log("config", config);
+  awa.ct.capturePageView(config);
+  return;
+};
+
+declare var awa: any;
 </script>
 
 <style lang="scss">
@@ -285,12 +315,13 @@ export default class extends Vue {
   font-weight: bold;
   display: flex;
   justify-content: center;
+  align-self: center;
   align-items: center;
   color: white;
 
   span {
     margin-left: 10px;
-  } 
+  }
 }
 
 #clientIdBlock {
@@ -493,7 +524,6 @@ export default class extends Vue {
     padding-top: 30px;
     padding-left: 159px;
     padding-right: 159px;
-    min-height: 100vh;
 
     #leftSide {
       flex: 1;
@@ -520,6 +550,7 @@ export default class extends Vue {
     }
 
     #rightSide {
+      display: initial;
       flex: 1;
       width: 50%;
       margin-left: 20px;
@@ -540,13 +571,13 @@ export default class extends Vue {
 }
 
 #featureDetailButtons {
-    width: 100%;
-    height: 80px;
-    display: flex;
-    flex-wrap: wrap;
-    align-content: center;
-    padding-right: 20px;
-    padding-left: 20px;
+  width: 100%;
+  height: 80px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  padding-right: 20px;
+  padding-left: 20px;
 }
 
 #backButton {
@@ -556,25 +587,26 @@ export default class extends Vue {
   font-size: 14px;
   height: 42px;
   width: 42px;
+  align-self: center;
 }
 
 #featDetailTitle {
   flex-grow: 4;
 }
 
-@media (max-width: 800px) { 
+@media (max-width: 800px) {
   #docsMain #headerDiv h2 {
     width: 45%;
   }
 }
 
-@media (max-width: 700px) { 
+@media (max-width: 700px) {
   #docsMain #headerDiv h2 {
     width: 40%;
   }
 }
 
-@media (max-width: 650px) { 
+@media (max-width: 650px) {
   #docsMain #contentContainer {
     flex-direction: column;
     padding-left: 25px;
@@ -593,19 +625,19 @@ export default class extends Vue {
   }
 }
 
-@media (max-width: 630px) { 
+@media (max-width: 630px) {
   #docsMain #headerDiv h2 {
     display: none;
   }
 }
 
-@media (max-width: 420px) { 
+@media (max-width: 420px) {
   #featureDetailButtons :nth-child(5) {
     display: none;
   }
 }
 
-@media (max-width: 300px) { 
+@media (max-width: 300px) {
   #featDetailDocsButton {
     display: none;
   }

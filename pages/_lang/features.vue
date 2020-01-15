@@ -273,14 +273,12 @@ export default class extends Vue {
     this.doInterObserve();
 
     const overrideValues = {
-      isAuto: false,
-      behavior: 0,
       uri: window.location.href,
       pageName: "featuresPage",
       pageHeight: window.innerHeight
     };
 
-    awa.ct.capturePageView(overrideValues);
+    this.$awa(overrideValues);
   }
 
   doInterObserve() {
@@ -608,7 +606,7 @@ export default class extends Vue {
 }
 
 Vue.prototype.$awa = function(config) {
-  console.log(config);
+  console.log('config', config);
   awa.ct.capturePageView(config);
   return;
 };
@@ -745,7 +743,19 @@ footer a {
 
 main {
   @include backgroundRightPoint(80%, 50vh);
-  height: 100vh;
+  height: 100%;
+}
+
+@media (max-height: 500px) {
+  main {
+    @include backgroundRightPoint(80%, 40vh);
+  }
+}
+
+@media (max-height: 425px) {
+  main {
+    @include backgroundRightPoint(80%, 10vh);
+  }
 }
 
 @keyframes opened {
@@ -835,6 +845,7 @@ header {
     display: flex;
     justify-content: center;
     height: 209px;
+    width: 320px;
     align-items: center;
     font-size: 4em;
     background: white;
@@ -854,7 +865,7 @@ header {
 .code-samples {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   width: 100%;
   flex: 1;
 }
@@ -922,12 +933,12 @@ header {
   top: 0;
   right: 0;
   z-index: -1;
-  height: 100vh;
+  height: 100%;
 }
 
 .feature-viewer {
   flex: 1;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   padding-top: 2px;
