@@ -468,6 +468,25 @@ footer a {
   margin-right: 17px;
 }
 
+@media(max-width: 430px) {
+  #pushModalContent {
+    margin-left: 3em;
+    margin-right: 3em;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  #pushModalContentOptions a {
+    margin-right: 18px;
+  }
+
+  #pushModalContentHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
 #pushModalCancelWrapper {
   display: flex;
   justify-content: center;
