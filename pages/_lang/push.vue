@@ -27,4 +27,11 @@ export default class extends Vue {}
     padding-left: 3%;
     padding-right: 3%;
   }
+
+  @media(max-width: 430px) {
+    #pushContentContainer {
+      padding-left: 28px;
+      padding-right: 28px;
+    }
+  }
 </style>
