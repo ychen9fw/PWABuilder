@@ -92,6 +92,10 @@ export default class extends Vue {}
 </script>
 
 <style scoped>
+#pushMain {
+  background: white;
+}
+
 #testContentContainer {
   padding-left: 3%;
   padding-right: 3%;
