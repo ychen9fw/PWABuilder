@@ -158,4 +158,14 @@ export default class extends Vue {}
   font-size: 14px;
   line-height: 21px;
 }
+
+@media(max-width: 430px) {
+  #testFormBlock input {
+    width: 20em;
+  }
+
+  #testActionBlock {
+    width: initial;
+  }
+}
 </style>
