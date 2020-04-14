@@ -577,4 +577,11 @@ a:hover {
     transform: translateY(0);
   }
 }
+
+@media (spanning: single-fold-vertical) {
+    header {
+      padding-left: 32px;
+      padding-right: 32px;
+    }
+}
 </style>

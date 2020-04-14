@@ -1101,4 +1101,18 @@ h2 {
     @include backgroundRightPoint(80%, 0vh);
   }
 }
+
+@media (spanning: single-fold-vertical) {
+    main {
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+    #inputSection {
+        // background: darkred;
+        width: calc(env(fold-left) - 64px);
+    }
+    #reportShareButtonContain {
+      padding-right: env(fold-left);
+    }
+}
 </style>

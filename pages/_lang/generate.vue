@@ -1026,4 +1026,21 @@ footer a {
   #sideBySide #leftSide .animatedSection input[type="radio"] {
     width: auto;
   }
+
+  @media (spanning: single-fold-vertical) {
+    #sideBySide {
+      padding-left: 0;
+      padding-right: 0;
+    }
+    #leftSide {
+      flex: 0 0 calc(env(fold-left) - 40px);
+      margin-left: 20px;
+      margin-right: 20px;
+    }
+    #rightSide {
+      flex: 1;
+      margin-left: 20px;
+      margin-right: 20px;
+    }
+}
 </style>
