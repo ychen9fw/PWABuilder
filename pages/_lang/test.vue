@@ -10,35 +10,24 @@
 
       <div id="testFormBlock">
         <div class="testInputLabel">
-          <label for="emailInput">
-            Email:
-          </label>
+          <label for="emailInput">Email:</label>
 
-          <input
-            type="email"
-            id="emailInput"
-            name="emailInput"
-            placeholder="janedoe@something.com"
-          />
+          <input type="email" id="emailInput" name="emailInput" placeholder="janedoe@something.com" />
         </div>
 
         <div class="testInputLabel">
-          <label for="publicKeyInput">
-            Public Key:
-          </label>
+          <label for="publicKeyInput">Public Key:</label>
 
           <input
             type="text"
             id="publicKeyInput"
             name="publickeyInput"
-            placeholder="janedoe@something.com"
+            placeholder="BMCRD0PP23_mhf7IWI1FLfw219PtjqV63XovTHqYdXgKLaLykCNJ8axD5hz4etTLI9bVfjMPIZUamPg3A5ZvXK4"
           />
         </div>
 
         <div class="testInputLabel">
-          <label for="titleInput">
-            Notification Title:
-          </label>
+          <label for="titleInput">Notification Title:</label>
 
           <input
             type="text"
@@ -49,24 +38,15 @@
         </div>
 
         <div class="testInputLabel">
-          <label for="bodyInput">
-            Notification Body:
-          </label>
+          <label for="bodyInput">Notification Body:</label>
 
-          <input
-            type="text"
-            id="bodyInput"
-            name="bodyInput"
-            placeholder="Test Notification body"
-          />
+          <input type="text" id="bodyInput" name="bodyInput" placeholder="Test Notification body" />
         </div>
 
         <div class="testInputLabel">
-          <label for="iconInput">
-            URL to notification icon:
-          </label>
+          <label for="iconInput">URL to notification icon:</label>
 
-          <input type="text" id="iconInput" name="iconInput" placeholder="" />
+          <input type="text" id="iconInput" name="iconInput" placeholder />
         </div>
       </div>
 
@@ -91,9 +71,10 @@ import HubHeader from "~/components/HubHeader.vue";
 export default class extends Vue {}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 #pushMain {
   background: white;
+  height: 100%;
 }
 
 #testContentContainer {
@@ -134,6 +115,11 @@ export default class extends Vue {}
   background: transparent;
   padding-bottom: 9px;
   width: 32em;
+
+  &:focus {
+    border-color: #9337d8;
+    outline: none;
+  }
 }
 
 #testFormBlock .testInputLabel {
@@ -163,7 +149,7 @@ export default class extends Vue {}
   line-height: 21px;
 }
 
-@media(max-width: 430px) {
+@media (max-width: 430px) {
   #testFormBlock input {
     width: 20em;
   }
