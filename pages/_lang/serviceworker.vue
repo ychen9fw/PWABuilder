@@ -9,6 +9,13 @@
           <p>{{ $t("serviceworker.summary") }}</p>
         </header>
 
+        <div id="push-notification-section">
+          <button
+            id="push-notifications-button"
+            @click="modalOpened"
+          >Add support for push notifications</button>
+        </div>
+
         <div id="inputSection">
           <form @submit.prevent="download" @keydown.enter.prevent="download">
             <div
@@ -101,6 +108,46 @@
         >Our Privacy Statement</a>
       </p>
     </footer>
+    <div id="modal-background" class="has-acrylic-40 is-dark" v-show="modalOpen">
+      <button id="modal-close-button" @click="modalClosed">
+        <i class="fas fa-times"></i>
+      </button>
+      <div id="modal">
+        <header class="modal-header">
+          <h2>Setup Push Notifications</h2>
+        </header>
+        <section class="modal-content">
+          <p>Is this a new or existing setup?</p>
+          <div class="inputContainer">
+            <label class="l-generator-label">
+              <div id="inputDiv">
+                <div id="titleBox">
+                  <h4>Create a new Setup</h4>
+                </div>
+              </div>
+            </label>
+            <div
+              class="swDesc"
+            >Why? Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec tristique maximus fringilla...</div>
+          </div>
+          <div class="inputContainer">
+            <label class="l-generator-label">
+              <div id="inputDiv">
+                <div id="titleBox">
+                  <h4>Test Push Notifications</h4>
+                </div>
+              </div>
+            </label>
+            <div
+              class="swDesc"
+            >Quisque molestie ornare auctor. Sed congue accumsan erat, quis fringilla nunc posuere id.</div>
+          </div>
+        </section>
+        <footer class="modal-footer">
+          <button id="modal-cancel" @click="modalClosed">Cancel</button>
+        </footer>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -144,6 +191,7 @@ export default class extends Vue {
   public betterSW = false;
   public codeViewerLoadingDelayTop = false;
   public codeViewerLoadingDelayBottom = false;
+  public modalOpen = false;
 
   @ServiceworkerState serviceworkers: ServiceWorker[];
   @ServiceworkerState serviceworker: number;
@@ -259,12 +307,14 @@ export default class extends Vue {
     (this.$root.$el.closest("body") as HTMLBodyElement).classList.add(
       "modal-screen"
     );
+    this.modalOpen = true;
   }
 
   public modalClosed() {
     (this.$root.$el.closest("body") as HTMLBodyElement).classList.remove(
       "modal-screen"
     );
+    this.modalOpen = false;
   }
 }
 
@@ -274,7 +324,7 @@ Vue.prototype.$awa = function(config) {
   if (awa) {
     awa.ct.capturePageView(config);
   }
-  
+
   return;
 };
 </script>
@@ -339,54 +389,6 @@ footer a {
     }
 
     #inputSection {
-      #inputContainer {
-        cursor: pointer;
-        border-radius: 4px;
-        padding-top: 24px;
-        padding-bottom: 24px;
-        padding-left: 28px;
-        padding-right: 28px;
-
-        .swDesc {
-          font-style: normal;
-          font-weight: normal;
-          font-size: 14px;
-          line-height: 21px;
-        }
-
-        #inputDiv {
-          display: flex;
-          align-items: unset;
-
-          input {
-            height: 1.2em;
-            flex: 1;
-          }
-
-          #titleBox {
-            display: flex;
-            justify-content: space-between;
-          }
-
-          #titleBox svg {
-            height: 24px;
-            margin-left: 10px;
-            font-size: 16px;
-            color: #9337d8;
-          }
-
-          h4 {
-            flex: 22;
-            margin-bottom: 10px;
-
-            font-style: normal;
-            font-weight: bold;
-            font-size: 16px;
-            line-height: 24px;
-          }
-        }
-      }
-
       .active {
         background: #f0f0f0;
 
@@ -470,6 +472,55 @@ footer a {
   width: 40%;
 }
 
+#inputContainer,
+.inputContainer {
+  cursor: pointer;
+  border-radius: 4px;
+  padding-top: 24px;
+  padding-bottom: 24px;
+  padding-left: 28px;
+  padding-right: 28px;
+
+  .swDesc {
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 21px;
+  }
+
+  #inputDiv {
+    display: flex;
+    align-items: unset;
+
+    input {
+      height: 1.2em;
+      flex: 1;
+    }
+
+    #titleBox {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #titleBox svg {
+      height: 24px;
+      margin-left: 10px;
+      font-size: 16px;
+      color: #9337d8;
+    }
+
+    h4 {
+      flex: 22;
+      margin-bottom: 10px;
+
+      font-style: normal;
+      font-weight: bold;
+      font-size: 16px;
+      line-height: 24px;
+    }
+  }
+}
+
 @media (max-width: 1180px) {
   #rightSide {
     display: none !important;
@@ -491,6 +542,103 @@ footer a {
   #sideBySide #leftSide #inputSection #inputContainer {
     padding-left: 14px;
     padding-right: 14px;
+  }
+}
+
+#push-notification-section {
+  height: 40px;
+
+  #push-notifications-button {
+    color: #9337d8;
+    height: 24px;
+    line-height: 1.2;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    background-color: transparent;
+  }
+}
+
+#modal-background {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: space-around;
+  z-index: 97999;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+
+  #modal-close-button {
+    position: absolute;
+    z-index: 99999;
+    top: 10px;
+    right: 10px;
+    height: 32px;
+    width: 32px;
+    border: none;
+    float: right;
+    background: #3c3c3c;
+    color: #fff;
+    border-radius: 50%;
+    margin-top: 10px;
+    margin-right: 10px;
+    font-size: 14px;
+  }
+
+  #modal {
+    font-family: "Poppins", "Segoe UI", Arial, Helvetica, sans-serif;
+    position: fixed;
+    z-index: 98999;
+
+    max-width: 600px;
+    max-height: 400px;
+    height: 80%;
+    width: 80%;
+    background-color: #fff;
+
+    padding: 24px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+
+    .modal-header {
+      h2 {
+        font-size: 24px;
+      }
+    }
+    .modal-content {
+    }
+    .modal-footer {
+      display: flex;
+      text-align: center;
+    }
+
+    #modal-cancel {
+      color: #3c3c3c;
+      border: none;
+      background: transparent;
+      opacity: 0.55;
+
+      align-items: center;
+      text-align: center;
+
+      font-size: 16px;
+      line-height: 21px;
+
+      &:hover,
+      &:focus {
+        opacity: 1;
+        color: #9337d8;
+      }
+    }
+
+    @media (max-width: 460px) {
+      height: 100%;
+      width: 100%;
+      border-radius: 0;
+    }
   }
 }
 </style>
