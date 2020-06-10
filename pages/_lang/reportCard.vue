@@ -1,8 +1,5 @@
 <template>
-  <div
-    id="hubContainer"
-    :class="{ backgroundReport: gotURL, backgroundIndex: !gotURL }"
-  >
+  <div id="hubContainer" :class="{ backgroundReport: gotURL, backgroundIndex: !gotURL }">
     <HubHeader
       v-on:reset="reset()"
       :score="overallScore"
@@ -10,7 +7,13 @@
       :expanded="!gotURL"
     ></HubHeader>
 
-    <ion-toast-controller></ion-toast-controller>
+    <div v-if="showCopyToast" id="gitCopyToast">
+      <span>git clone command copied to your clipboard</span>
+    </div>
+
+    <div v-if="showShareToast" id="gitCopyToast">
+      <span>URL copied for sharing</span>
+    </div>
 
     <div v-if="gotURL" id="reportShareButtonContainer">
       <button @click="shareReport">
@@ -22,7 +25,7 @@
     <main>
       <div v-if="!gotURL" id="inputSection">
         <div id="topHalfHome">
-          <h1>Quickly and easily turn your website into an app!</h1>
+          <h1 id="topHalfHeader">Quickly and easily turn your website into an app!</h1>
 
           <p>
             It's super easy to get started. Just enter the URL of your website
@@ -49,9 +52,7 @@
             />
 
             <button :class="{ btnErr: error != null }" id="getStartedButton">
-              <div :class="{ btnErrText: error != null }">
-                {{ $t("generator.start") }}
-              </div>
+              <div :class="{ btnErrText: error != null }">{{ $t("generator.start") }}</div>
             </button>
           </form>
         </div>
@@ -62,19 +63,47 @@
             <p>Already have a PWA? Skip ahead!</p>
           </div>-->
 
+          <div id="starterSection">
+            <h3>...Or, dont even have a website yet?</h3>
+            <p>
+              Get started from scratch with our
+              <a
+                href="https://github.com/pwa-builder/pwa-starter"
+              >PWA Starter!</a>
+            </p>
+
+            <div id="starterActions">
+              <button @click="starterDrop" id="mainStartButton">
+                Get Started!
+                <i class="fas fa-chevron-down"></i>
+
+                <div v-if="openDrop" id="starterDropdown">
+                <button id="starterDownloadButton" @click="downloadStarter">
+                  <i class="fas fa-arrow-down"></i>
+                  Download
+                </button>
+                <button @click="cloneStarter">
+                  <i class="fab fa-github"></i>
+                  Clone from Github
+                </button>
+              </div>
+              </button>
+
+            </div>
+          </div>
         </div>
         <footer>
           <p>
             PWA Builder was founded by Microsoft as a community guided, open
             source project to help move PWA adoption forward.
-            <a href="https://privacy.microsoft.com/en-us/privacystatement"
-              >Our Privacy Statement</a
-            >
+            <a
+              href="https://privacy.microsoft.com/en-us/privacystatement"
+            >Our Privacy Statement</a>
           </p>
         </footer>
       </div>
 
-      <div v-if="gotURL" id="infoSection">
+      <div v-if="gotURL && overallScore < 80" id="infoSection">
         <h2>Hub</h2>
 
         <p>
@@ -84,12 +113,41 @@
         </p>
       </div>
 
+      <div v-if="gotURL && overallScore >= 80" id="attachSection">
+        <div id="attachHeader">
+          <h2>Nice job!</h2>
+
+          <button id="attachShare" aria-label="Share Report" @click="shareReport">
+            <i class="fas fa-share-alt"></i>
+          </button>
+        </div>
+
+        <p>
+          Ready to build your PWA? Tap "Build My PWA" to package your PWA for the app stores
+          or tap "Feature Store" to check out the latest web components from the PWABuilder team to improve your PWA even further!
+        </p>
+
+        <div id="attachSectionActions">
+          <nuxt-link
+            @click="$awa( { 'referrerUri': 'https://www.pwabuilder.com/publishFromHome' });"
+            id="buildLink"
+            to="/publish"
+          >Build My PWA</nuxt-link>
+          <a
+            @click="$awa( { 'referrerUri': 'https://www.pwabuilder.com/featuresFromHome' });"
+            id="featuresLink"
+            href="https://pwabuilderfeatures.z22.web.core.windows.net/"
+          >Feature Store</a>
+        </div>
+      </div>
+
       <ScoreCard
         v-if="gotURL"
         v-on:manifestTestDone="manifestTestDone($event)"
         :url="url"
         category="Manifest"
-        class="firstCard"
+        id="firstCard"
+        class="scoreCard"
       ></ScoreCard>
       <ScoreCard
         v-if="gotURL"
@@ -134,8 +192,7 @@
         project to help move PWA adoption forward.
         <a
           href="https://privacy.microsoft.com/en-us/privacystatement#maincookiessimilartechnologiesmodule"
-          >Our Privacy Statement</a
-        >
+        >Our Privacy Statement</a>
       </p>
     </footer>
   </div>
@@ -186,6 +243,9 @@ export default class extends Vue {
   public topSamples: Array<any> = [];
   public cleanedURL: string | null = null;
   public shared: boolean = false;
+  public openDrop: boolean = false;
+  public showCopyToast: boolean = false;
+  public showShareToast: boolean = false;
 
   public async created() {
     this.url$ = this.url;
@@ -194,18 +254,8 @@ export default class extends Vue {
       this.gotURL = true;
       this.getTopSamples();
     } else {
-      console.log("no url");
       if (window && window.location.search) {
-        const url = window.location.search.split("=")[1];
-        console.log(url);
-        this.cleanedURL = decodeURIComponent(url);
-        this.url = this.cleanedURL;
-
-        // this.gotURL = true;
-
-        setTimeout(async () => {
-          await this.checkUrlAndGenerate();
-        }, 500);
+        this.processQueryString();
       }
     }
   }
@@ -243,16 +293,23 @@ export default class extends Vue {
     };
 
     this.$awa(overrideValues);
+    window.addEventListener("popstate", this.backAndForth);
+  }
+
+  beforeDestroy() {
+    (<any>window).removeEventListener("popstate", this.backAndForth);
+  }
+
+  public async backAndForth(e) {
+    e.preventDefault();
+    if (window.location.href === `${window.location.origin}/`) {
+      this.reset();
+    } else if (window.location.pathname === "/") {
+      this.processQueryString();
+    }
   }
 
   public async shareReport() {
-    console.log(
-      "trying to share",
-      `${location.href}?url=${this.cleanedURL}`,
-      this.url,
-      this.url$
-    );
-
     if ((navigator as any).share) {
       try {
         await (navigator as any).share({
@@ -291,29 +348,77 @@ export default class extends Vue {
     }
   }
 
+  public async starterDrop() {
+    this.openDrop = !this.openDrop;
+  }
+
+  async downloadStarter() {
+    const response = await fetch("/data/pwa-starter-master.zip");
+    const data = await response.blob();
+    const url = URL.createObjectURL(data);
+
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "pwa-starter.zip";
+    anchor.click();
+
+    window.URL.revokeObjectURL(url);
+
+    const overrideValues = {
+      behavior: 0,
+      uri: window.location.href,
+      pageName: "downloadedStarter",
+      pageHeight: window.innerHeight
+    };
+
+    this.$awa(overrideValues);
+
+    this.$router.push("/features?from=starter");
+  }
+
+  async cloneStarter() {
+    const cloneCommand =
+      "git clone https://github.com/pwa-builder/pwa-starter.git";
+
+    try {
+      await (navigator as any).clipboard.writeText(cloneCommand);
+
+      this.openDrop = false;
+
+      await this.showCopiedToast();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async showCopiedToast() {
+    this.showCopyToast = true;
+
+    setTimeout(() => {
+      this.showCopyToast = false;
+    }, 2300);
+  }
+
   async showToast() {
-    const toastCtrl = document.querySelector("ion-toast-controller");
-    await (toastCtrl as any).componentOnReady();
+    this.showShareToast = true;
 
-    const toast = await (toastCtrl as any).create({
-      duration: 2300,
-      message: "URL copied for sharing"
-    });
-
-    await toast.present();
+    setTimeout(() => {
+      this.showShareToast = false;
+    }, 2300);
   }
 
   public async checkUrlAndGenerate() {
     this.error = null;
-
-    console.log("here");
-
     try {
-      if (this.url$ === null || this.url$ === undefined) {
+      if (
+        window &&
+        !window.location.search &&
+        (this.url$ !== null || this.url$ !== undefined)
+      ) {
+        this.$router.push({ name: "index", query: { url: this.url$ } });
+      } else {
         this.url$ = this.cleanedURL;
       }
-
-      console.log("in try block", this.url$);
 
       await this.updateLink(this.url$);
       this.url$ = this.url;
@@ -342,35 +447,33 @@ export default class extends Vue {
     }
   }
 
+  public async processQueryString() {
+    const url = window.location.search.split("=")[1];
+    this.cleanedURL = decodeURIComponent(url);
+    this.url = this.cleanedURL;
+    this.checkUrlAndGenerate();
+  }
+
   public async getTopSamples() {
     await this.getSamples();
-    console.log(this.samples);
     const cleanedSamples = this.samples.slice(0, 4);
-    console.log("cleanedSamples", cleanedSamples);
 
     this.topSamples = cleanedSamples;
   }
 
   public securityTestDone(ev) {
-    console.log("testDone", ev);
     this.overallScore = this.overallScore + ev.score;
-    console.log(this.overallScore);
   }
 
   public manifestTestDone(ev) {
-    console.log("manifest test done", ev);
     this.overallScore = this.overallScore + ev.score;
-    console.log(this.overallScore);
   }
 
   public swTestDone(ev) {
-    console.log("sw test is done", ev);
     this.overallScore = this.overallScore + ev.score;
-    console.log(this.overallScore);
   }
 
   public reset() {
-    console.log("resetting");
     this.gotURL = false;
     this.overallScore = 0;
     this.topSamples = [];
@@ -383,10 +486,11 @@ export default class extends Vue {
   }
 }
 
-
 Vue.prototype.$awa = function(config) {
-  console.log('config', config);
-  awa.ct.capturePageView(config);
+  if (awa) {
+    awa.ct.capturePageView(config);
+  }
+
   return;
 };
 
@@ -397,6 +501,125 @@ declare var awa: any;
 /* stylelint-disable */
 @import "~assets/scss/base/variables";
 
+#starterDropdown {
+  position: absolute;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  padding-left: 12px;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  border-radius: 6px;
+  margin-top: 0;
+  width: 14em;
+  margin-left: 1.8em;
+
+  animation-name: slidedown;
+  animation-duration: 200ms;
+
+  box-shadow: 0 0 4px 1px #0000002e;
+}
+
+#starterActions .fa, #starterActions .fas {
+  margin-right: 4px;
+}
+
+#starterActions #mainStartButton {
+  background: black !important;
+  color: white !important;
+  width: 11em;
+  border: none;
+}
+
+#gitCopyToast {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: #3c3c3c;
+  color: white;
+  padding: 1em;
+  font-size: 14px;
+  border-radius: 4px;
+  padding-left: 1.4em;
+  padding-right: 1.4em;
+  animation-name: fadein;
+  animation-duration: 0.3s;
+}
+
+#attachSection {
+  grid-column: 3 / span 8;
+  background: white;
+  padding: 20px;
+  border-radius: 4px;
+  margin-bottom: 2em;
+  margin-top: 4em;
+  min-height: 12em;
+
+  animation-name: fadein;
+  animation-duration: 300ms;
+}
+
+#attachSectionActions {
+  height: 3em;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+#attachSectionActions #buildLink {
+  justify-content: center;
+  padding-left: 20px;
+  padding-right: 20px;
+  font-family: sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 21px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(to right, #1fc2c8, #9337d8 116%);
+  color: white;
+  border-radius: 20px;
+  height: 40px;
+}
+
+#attachSectionActions #featuresLink {
+  justify-content: center;
+  padding-left: 20px;
+  padding-right: 20px;
+  font-family: sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 21px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  background: black;
+  color: white;
+  border-radius: 20px;
+  height: 40px;
+  margin-left: 12px;
+}
+
+#attachSection #attachHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#attachShare {
+  border-radius: 50%;
+  width: 2.4em;
+  height: 2.4em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+}
+
 #shareToast {
   position: absolute;
   bottom: 16px;
@@ -405,7 +628,6 @@ declare var awa: any;
   color: white;
   padding: 1em;
   font-size: 14px;
-  font-weight: bold;
   border-radius: 4px;
   padding-left: 1.4em;
   padding-right: 1.4em;
@@ -438,11 +660,11 @@ declare var awa: any;
   font-weight: normal;
   font-size: 12px;
   line-height: 18px;
-  color: #707070;
+  color: #606060;
 }
 
 #hubFooter a {
-  color: #707070;
+  color: #606060;
   text-decoration: underline;
 }
 
@@ -456,13 +678,12 @@ declare var awa: any;
   justify-content: flex-end;
   padding-right: 9em;
   position: relative;
-  top: 9em;
 }
 
 #reportShareButtonContainer button {
   background: #3c3c3c87;
   width: 188px;
-  font-family: Poppins;
+  font-family: sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -490,7 +711,7 @@ declare var awa: any;
 }
 
 .backgroundIndex {
-   @include backgroundLeftPoint(26%, 20vh); 
+  @include backgroundLeftPoint(26%, 20vh);
 }
 
 .backgroundReport {
@@ -509,7 +730,7 @@ declare var awa: any;
 }
 
 main {
-  @include grid; 
+  @include grid;
 
   margin-bottom: 2em;
 }
@@ -518,13 +739,17 @@ h2 {
   margin-top: 0em;
   margin-bottom: 17px;
 
-  font-family: Poppins;
+  font-family: sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 24px;
   line-height: 54px;
   letter-spacing: -0.02em;
   height: 36px;
+}
+
+#topHalfHeader {
+  font-weight: bold;
 }
 
 #inputSection {
@@ -590,7 +815,7 @@ h2 {
       height: 40px;
       padding-left: 20px;
       padding-right: 20px;
-      font-family: Poppins;
+      font-family: sans-serif;
       font-style: normal;
       font-weight: 600;
       font-size: 14px;
@@ -621,105 +846,91 @@ h2 {
   }
 
   footer {
-      position: absolute;
-      bottom: 10px;
-      margin-right: 32px;
-      color: rgba(60, 60, 60, 0.6);
-      background: transparent;
+    position: absolute;
+    bottom: 10px;
+    margin-right: 32px;
+    color: rgba(60, 60, 60, 0.6);
+    background: transparent;
 
-      p {
-        text-align: center;
-        font-size: 12px;
-        line-height: 18px;
-      }
-
-      a {
-        box-shadow: none;
-        color: inherit;
-        text-decoration: underline;
-      }
+    p {
+      text-align: center;
+      font-size: 12px;
+      line-height: 18px;
     }
 
-    @media (max-width: 425px) {
-      footer {
-        margin-right: initial;
-        margin-left: initial;
-      }
-      footer p {
-        width: 75%;
-        margin-bottom: 0px;
+    a {
+      box-shadow: none;
+      color: inherit;
+      text-decoration: underline;
       }
     }
+  }
+
+  @media (max-width: 425px) {
+    footer {
+      margin-right: initial;
+      margin-left: initial;
+    }
+    footer p {
+      width: 75%;
+      margin-bottom: 0px;
+    }
+  }
 
   #bottomHalfHome {
     grid-row: 2;
 
+    #starterSection {
+      background: white;
+      color: black;
+      padding: 1.4em;
+      border-radius: 6px;
+      width: 24em;
+
+      h3 {
+        font-weight: bold;
+        font-size: 20px;
+      }
+
+      #starterActions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 28px;
+
+        button {
+          border-radius: 20px;
+          height: 40px;
+          font-weight: 600;
+          font-size: 14px;
+          line-height: 21px;
+
+          background: none;
+          color: black;
+          padding-left: 0;
+          padding-right: 0;
+          border: none;
+        }
+      }
+    }
+
+    @media (max-width: 640px) {
+      #starterSection {
+        display: none;
+      }
+    }
+  }
+}
+
+@media (min-width: 1380px) {
+  #inputSection {
     display: flex;
-    justify-content: center;
     align-items: center;
-    margin-top: 34px;
-    position: absolute;
-    bottom: 10px;
+    max-width: 100vw;
+    justify-content: space-between;
+  }
 
-    color: #333333;
-
-    #expertModeBlock {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      margin-top: 180px;
-      margin-right: 3em;
-
-      #expertModeButton {
-        --color-stop-hub: #1fc2c8;
-        --color-start-hub: #9337d8;
-
-        width: 136px;
-        font-weight: 500;
-        font-size: 14px;
-        font-family: "Poppins", sans-serif;
-        border: none;
-        border-radius: 22px;
-        padding-top: 9px;
-        padding-bottom: 11px;
-        background-image: linear-gradient(
-          to right,
-          var(--color-stop-hub),
-          var(--color-start-hub)
-        );
-        color: white;
-        height: 42px;
-
-        transition: --color-stop-hub 0.3s, --color-start-hub 0.3s;
-      }
-
-      #expertModeButton:hover {
-        --color-stop-hub: #9337d8;
-        --color-start-hub: #1fc2c8;
-      }
-
-      p {
-        margin-top: 9px;
-        font-size: 14px;
-        text-align: center;
-      }
-    }
-
-    @media (max-width: 1280px) {
-      #expertModeBlock {
-        margin-top: 80px;
-      }
-    }
-
-    @media (max-width: 425px) {
-      #expertModeBlock {
-        margin-top: 180px;
-        margin-right: initial;
-      }
-    }
-
-
+  #starterSection {
+    margin-top: 3em;
   }
 }
 
@@ -755,17 +966,22 @@ h2 {
   }
 }
 
-  #scoreCard {
-    margin-bottom: 20px;
-    }
+.scoreCard {
+  margin-bottom: 20px;
+}
 
 @media (max-width: 425px) {
+  #attachSection {
+    margin-left: 25px;
+    margin-right: 25px;
+  }
+
   #infoSection {
     margin-left: 25px;
     margin-right: 25px;
   }
 
-  #scoreCard {
+  .scoreCard {
     margin-left: 25px;
     margin-right: 25px;
     margin-bottom: 20px;
@@ -815,7 +1031,7 @@ h2 {
   }
 }
 
-.firstCard {
+#firstCard {
   grid-column: 1 / span 4;
 
   @media (max-width: 900px) {
@@ -881,7 +1097,7 @@ h2 {
   align-items: center;
 
   a {
-    background: rgba(60, 60, 60, 0.6);
+    background: rgba(60, 60, 60, 0.8);
     color: white;
     border-radius: 20px;
     height: 40px;
@@ -890,7 +1106,7 @@ h2 {
     align-items: center;
     padding-left: 20px;
     padding-right: 20px;
-    font-family: Poppins;
+    font-family: sans-serif;
     font-style: normal;
     font-weight: 600;
     font-size: 14px;
@@ -922,6 +1138,18 @@ h2 {
     visibility: visible;
     top: -11px;
     left: 1px;
+  }
+}
+
+@keyframes slidedown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -1001,11 +1229,15 @@ h2 {
 
 @media (max-height: 600px) {
   .backgroundIndex {
-    @include backgroundLeftPoint(30%, 0vh);  
+    @include backgroundLeftPoint(30%, 0vh);
   }
 
   .backgroundReport {
     @include backgroundRightPoint(80%, 25vh);
+  }
+
+  #starterSection {
+    display: none;
   }
 
   footer {

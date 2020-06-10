@@ -27,7 +27,7 @@
               id="modalAddButton"
               @click="onClickSubmit();  $awa( { 'referrerUri': 'https://www.pwabuilder.com/manifest/add-member' });"
             >
-              <span v-if="!isLoading">{{$t("modal.submit")}}</span>
+              <span v-if="!isLoading">{{button_name}}</span>
               <span vif="isLoading">
                 <Loading :active="isLoading" class="u-display-inline_block u-margin-left-sm"/>
               </span>
@@ -59,6 +59,7 @@ export default class extends Vue {
   @Prop({ type: String, default: "" }) public title: string;
   @Prop({ type: Boolean, default: true }) public showSubmitButton;
   @Prop({ type: Boolean, default: true }) public showTitleBox;
+  @Prop({ type: String, default: "Submit" }) public button_name: string;
   //public showButtons: string;
 
   public beforeDestroy() {
@@ -74,7 +75,6 @@ export default class extends Vue {
   public async show(): Promise<void> {
     // stop scrolling on the body when the modal is open
     // (this.$root.$el.closest('body') as HTMLBodyElement).style.overflowY = 'hidden';
-    console.log("set style to hidden");
 
     this.showModal = true;
     // have to put a setTimeout here because Edge
@@ -120,92 +120,14 @@ export default class extends Vue {
 
 @import "~assets/scss/base/variables";
 .modal {
-  /*align-items: flex-start;
-  xbackground: rgba($color-brand-quartary, .25);
-  display: flex;
-   xheight: 150%; /*this is a hack, we should put modal at lower level */
-  /*justify-content: center;
-  left: 0;
-  padding: 32px 0;
-  position: absolute;
-  top: 0;
-  width: 100%;
-  z-index: 100;
-  xbottom: 0;
-
-  &-box {
-    filter: blur(0px);
-    position: relative;
-    width: 100%;
-    margin-top: 300px;
-    z-index: 110;
-
-    &.error {
-      max-height: 480px;
-      min-height: 320px;
-
-      @media screen and (max-width: $media-screen-l) {
-        min-height: 320px;
-      }
-
-      @media screen and (max-width: $media-screen-m) {
-        min-height: 320px;
-      }
-
-      .pwa-generator-box_buttons {
-        margin-top: 25px;
-      }
-    }
-
-    @media screen and (max-width: $media-screen-l) {
-
-    }
-
-    @media screen and (max-width: $media-screen-m) {
-      $w: 80vw;
-
-      width: $w;
-    }
-  }
-
-  &-title {
-    font-family: Bitter;
-    font-size: $font-size-l;
-    font-weight: $font-weight-semibold;
-    margin-top: 0;
-    text-align: center;
-    width: 100%;
-  }
-
-  &-body {
-  }
-
-  &-tablec {
-    $padding: 1.5rem;
-
-    font-family: Bitter;
-    font-size: $font-size-m;
-    padding-right: $padding;
-    padding-top: $padding;
-    text-align: right;
-    text-transform: capitalize;
-
-    img {
-      max-width: 90%;
-    }
-  }
-
-  &-buttons {
-    text-align: center;
-    width: 100%;
-  }*/
-
-  background: white;
   position: fixed;
-  top: 13em;
-  right: 16em;
-  bottom: 19em;
-  left: 20em;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  left: 0;
   z-index: 99999;
   overflow-y: auto;
   animation-name: opened;
@@ -275,7 +197,7 @@ export default class extends Vue {
     padding-top: 1em;
     margin-bottom: 30px;
 
-    font-family: Poppins;
+    font-family: sans-serif;
     font-style: normal;
     font-weight: 600;
     font-size: 25px;
@@ -303,7 +225,7 @@ export default class extends Vue {
       height: 40px;
       padding-left: 20px;
       padding-right: 20px;
-      font-family: Poppins;
+      font-family: sans-serif;
       font-style: normal;
       font-weight: 600;
       display: flex;
@@ -322,7 +244,7 @@ export default class extends Vue {
       height: 40px;
       padding-left: 20px;
       padding-right: 20px;
-      font-family: Poppins;
+      font-family: sans-serif;
       font-style: normal;
       font-weight: 600;
       display: flex;
@@ -331,21 +253,14 @@ export default class extends Vue {
     }
   }
 
+  .modal-box {
+    background: white;
+    width: 70%;
+  }
+
   #titleBox {
     padding-right: 100px;
   }
 }
 
-@media (min-width: 1445px) {
-  .modal {
-    left: 27em;
-    right: 27em;
-    bottom: 22em;
-  }
-
-  .modal .modal-body {
-    padding-left: 30px;
-    padding-right: 22px;
-  }
-}
 </style>

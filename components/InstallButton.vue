@@ -3,6 +3,7 @@
     <button
       @click="install()"
       id="installButton"
+      aria-label="Install PWABuilder"
     >
     </button>
 
@@ -34,7 +35,7 @@ export default class extends Vue {
   color: white;
   border-radius: 16px;
   border: none;
-  font-family: Poppins;
+  font-family: sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -47,6 +48,12 @@ export default class extends Vue {
 
 #installButton::after {
   content: 'Install PWABuilder';
+}
+
+@media (display-mode: standalone) {
+  #installButton {
+    display: none;
+  }
 }
 
 @media (max-width: 820px) {

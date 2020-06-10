@@ -12,16 +12,16 @@
 
       <div id="mainTabsBar">
         <nuxt-link to="/">My Hub</nuxt-link>
-        <nuxt-link
+        <a
           @click="$awa( { 'referrerUri': `https://pwabuilder.com/features` })"
-          to="/features"
-        >Feature Store</nuxt-link>
+          href="https://pwabuilderfeatures.z22.web.core.windows.net/"
+        >Feature Store</a>
       </div>
 
       <div id="icons">
         <InstallButton/>
 
-        <a href="https://github.com/pwa-builder" target="_blank" rel="noopener noreferrer">
+        <a href="https://github.com/pwa-builder" aria-label="PWABuilder Github" target="_blank" rel="noopener noreferrer">
           <i class="fab fa-github"></i>
         </a>
         <!--<i class="fab fa-twitter"></i>-->
@@ -52,7 +52,7 @@
 
     <div class="has-acrylic-80 is-dark has-reveal-background" v-if="showSubHeader" id="subHeader">
       <div id="tabsBar">
-        <nuxt-link to="/">Overview</nuxt-link>
+        <nuxt-link :to="{name: 'index', query:{url:this.url}}">Overview</nuxt-link>
         <nuxt-link to="/generate">Manifest</nuxt-link>
         <nuxt-link to="/serviceworker">Service Worker</nuxt-link>
       </div>
@@ -80,6 +80,7 @@
         <nuxt-link
           class="enabled"
           id="publishButton"
+          aria-label="Build My PWA"
           to="/publish"
         ></nuxt-link>
       </div>
@@ -153,7 +154,6 @@ export default class extends Vue {
   }
 
   updated() {
-    console.log("updated", this.score);
     if (this.manifest) {
       this.readyToPublish = true;
     } 
@@ -178,19 +178,18 @@ export default class extends Vue {
   }
 
   reset() {
-    console.log("here");
-    if (location.pathname === "/") {
-      this.$emit("reset");
-    } else {
-      history.back();
-    }
+    this.$emit("reset");
+    this.$router.push({ name: 'index'}) 
   }
 }
 
 declare var awa: any;
 
 Vue.prototype.$awa = function(config) {
-  awa.ct.capturePageView(config);
+  if (awa) {
+    awa.ct.capturePageView(config);
+  }
+
   return;
 };
 </script>
@@ -247,7 +246,7 @@ header {
 
     a {
       padding-bottom: 6px;
-      font-family: Poppins;
+      font-family: sans-serif;
       font-style: normal;
       font-weight: 600;
       font-size: 14px;
@@ -315,7 +314,7 @@ header {
 
     a {
       padding-bottom: 6px;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.9);
 
       font-weight: normal;
       font-size: 14px;
@@ -371,7 +370,7 @@ header {
   }
 
   #urlTested {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.9);
     display: flex;
     align-items: center;
 
@@ -383,7 +382,7 @@ header {
     }
 
     span {
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.9);
 
       font-style: normal;
       font-weight: normal;
@@ -405,7 +404,7 @@ header {
       display: flex;
       flex-direction: column;
       font-weight: bold;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.9);
     }
   }
 
@@ -425,7 +424,7 @@ header {
     flex-direction: column;
     padding-right: 32px;
 
-    font-family: Poppins;
+    font-family: sans-serif;
     font-style: normal;
     font-weight: 800;
     font-size: 32px;
@@ -459,7 +458,7 @@ header {
     justify-content: center;
     padding-left: 20px;
     padding-right: 20px;
-    font-family: Poppins;
+    font-family: sans-serif;
     font-style: normal;
     font-weight: 600;
     font-size: 14px;
@@ -481,13 +480,22 @@ header {
   }
 }
 
-@media (max-width: 425px) {
+@media (max-width: 530px) {
   #overallScore {
     padding-right: 0px !important;
-    padding-left: 20px;
+    padding-left: 0px;
+  }
+
+  #subHeader #tabsBar {
+    grid-template-columns: 10fr 10fr 1fr;
   }
 
   #subHeader #publishButton {
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+
+  #tabsBar :first-child {
     display: none;
   }
 
@@ -495,6 +503,12 @@ header {
     display: flex;
     padding: 0 0px;
     justify-content: space-around;
+  }
+}
+
+@media (max-width: 320px) {
+  #subHeader #publishButton {
+    width: 60px;
   }
 }
 

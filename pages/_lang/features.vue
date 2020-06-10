@@ -6,9 +6,15 @@
 
     <section id="headerSection">
       <div>
-        <h1 id="featurePageHeader">Features</h1>
+        <h1 v-if="!fromStarter" id="featurePageHeader">Features</h1>
+        <h1 v-if="fromStarter">Congrats!</h1>
 
-        <p>Add that special something to supercharge your PWA. These cross-platform features can make your website work more like an app.</p>
+        <p v-if="!fromStarter">Add that special something to supercharge your PWA. These cross-platform features can make your website work more like an app.</p>
+
+        <p v-if="fromStarter">
+          You have downloaded the PWABuilder pwa-starter and are now ready to start building! Check out the <a href="https://github.com/pwa-builder/pwa-starter/blob/master/README.md">README.md</a> file in the downloaded folder for info on getting started.
+          You can also check out our features below to start adding even more functionality to your new PWA!
+        </p>
       </div>
     </section>
 
@@ -239,6 +245,8 @@ export default class extends Vue {
   showSamsungSamples = false;
   showTeamsSamples = false;
 
+  fromStarter = false;
+
   currentPendingSample: windowsStore.Sample | null = null;
 
   selectedSamples: windowsStore.Sample[] = [];
@@ -259,13 +267,11 @@ export default class extends Vue {
   modalStatus = false;
 
   async mounted() {
-    console.log(this.samples.length);
 
     await this.getSamples();
-    console.log("samples", this.samples);
 
     const score = sessionStorage.getItem("overallGrade");
-    console.log(score);
+
     if (score) {
       this.overallGrade = score;
     }
@@ -279,6 +285,22 @@ export default class extends Vue {
     };
 
     this.$awa(overrideValues);
+
+    this.observeURL();
+  }
+
+  observeURL() {
+    // features?from=starter
+
+    const url = window.location.search.split("=")[1];
+
+    if (url) {
+      const code = decodeURIComponent(url);
+
+      if (code === "starter") {
+        this.fromStarter = true;
+      }
+    }
   }
 
   doInterObserve() {
@@ -377,11 +399,9 @@ export default class extends Vue {
   }
 
   showAuthSamplesMethod() {
-    this.authSamples = this.samples.filter(sample =>
-      (sample.title as string).toLowerCase().includes("authentication") || (sample.title as string).toLowerCase().includes("contacts")
-      || (sample.title as string).toLowerCase().includes("people") || (sample.title as string).toLowerCase().includes("person")
-      || (sample.title as string).toLowerCase().includes("login")
-    );
+    const authIndicators = ["authentication", "people", "login", "sign in", "person", "contacts"];
+    this.authSamples = this.samples.filter(sample => 
+      authIndicators.some(indicator => sample.title && sample.title.toLowerCase().includes(indicator)));
 
     this.showAuthSamples = true;
     this.showPWASamples = false;
@@ -396,7 +416,6 @@ export default class extends Vue {
   showEduSamplesMethod() {
     this.eduSamples = this.samples.filter(sample => {
       if ((sample.title as string).toLowerCase().includes("graph") || (sample.title as string).toLowerCase().includes("midi")) {
-        console.log(sample);
         return sample;
       }
     });
@@ -417,7 +436,7 @@ export default class extends Vue {
        (sample.title as string).toLowerCase().includes('install') ||
        (sample.title as string).toLowerCase().includes('clipboard')
       ) {
-        console.log('sample', sample);
+
         return sample;
       }
     });
@@ -458,14 +477,7 @@ export default class extends Vue {
 
   public async modalSelected() {
     try {
-      console.log("sample selected");
       await this.selectSample(this.currentPendingSample);
-      /*this.selectedSamples.push(this
-        .currentPendingSample as windowsStore.Sample);*/
-
-      // force a re-render
-      // this.selectedSamples = this.selectedSamples;
-      console.log(this.selectedSamples);
     } catch (e) {
       this.error = e;
     }
@@ -594,20 +606,20 @@ export default class extends Vue {
   }
 
   public modalOpened() {
-    console.log("modal opened");
     window.scrollTo(0, 0);
     this.modalStatus = true;
   }
 
   public modalClosed() {
-    console.log("modal closed");
     this.modalStatus = false;
   }
 }
 
 Vue.prototype.$awa = function(config) {
-  console.log('config', config);
-  awa.ct.capturePageView(config);
+  if (awa) {
+    awa.ct.capturePageView(config);
+  }
+  
   return;
 };
 
@@ -641,7 +653,7 @@ declare var awa: any;
     rgb(60, 60, 60) 57.68%
   );
   color: white;
-  font-family: Poppins;
+  font-family: sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -682,7 +694,7 @@ declare var awa: any;
     rgb(60, 60, 60) 57.68%
   );
   color: white;
-  font-family: Poppins;
+  font-family: sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -797,7 +809,7 @@ header {
 
     margin-top: 48px;
     margin-bottom: 16px;
-    font-family: Poppins;
+    font-family: sans-serif;
     font-style: normal;
     font-weight: 600;
     font-size: 24px;
@@ -812,6 +824,12 @@ header {
     font-weight: normal;
     font-size: 16px;
     line-height: 28px;
+
+    max-width: 32em;
+
+    a {
+      color: #622392;
+    }
   }
 }
 
@@ -914,7 +932,7 @@ header {
   padding: 1em;
 }
 
-#codeHeader {
+.codeHeader {
   background: lightgrey;
   font-weight: bold;
   padding: 1em;
@@ -989,7 +1007,7 @@ header {
   justify-content: center;
   padding-left: 20px;
   padding-right: 20px;
-  font-family: Poppins;
+  font-family: sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -1040,7 +1058,7 @@ header {
   justify-content: center;
   padding-left: 20px;
   padding-right: 20px;
-  font-family: Poppins;
+  font-family: Poppins, "Segoe UI", sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 14px;

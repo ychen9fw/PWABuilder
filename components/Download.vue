@@ -1,6 +1,10 @@
 <template>
   <button
-    :class="{'pwa-button--brand': isBrand, 'pwa-button--total_right': isRight}"
+    :class="{
+      'pwa-button--brand': isBrand,
+      'pwa-button--total_right': isRight,
+    }"
+    :disabled="downloadDisabled"
     @click="buildArchive(platform, parameters)"
   >
     <span v-if="isReady">
@@ -34,6 +38,11 @@ import * as publish from "~/store/modules/publish";
 const PublishState = namespace(publish.name, State);
 const PublishAction = namespace(publish.name, Action);
 
+import * as generator from "~/store/modules/generator";
+const GeneratorState = namespace(generator.name, State);
+
+import { generatePackageId } from "../utils/packageID";
+
 @Component({
   components: {
     Loading
@@ -46,6 +55,9 @@ export default class extends Vue {
 
   @Prop({ type: String, default: "" })
   public readonly platform: string;
+
+  @Prop({ type: String, default: "" })
+  public readonly packageName: string;
 
   @Prop({
     type: Array,
@@ -69,24 +81,268 @@ export default class extends Vue {
   public showMessage: boolean;
 
   @PublishState archiveLink: string;
+  @PublishState downloadDisabled: boolean;
+
   @PublishAction build;
+  @PublishAction buildTeams;
+
+  @GeneratorState manifest: generator.Manifest;
+  @GeneratorState manifestUrl: string;
 
   public created(): void {
     this.message$ = this.message;
 
-    const sessionRef = sessionStorage.getItem('currentURL');
+    const sessionRef = sessionStorage.getItem("currentURL");
     if (sessionRef) {
       this.siteHref = sessionRef;
-      console.log('this.siteHref', this.siteHref);
     }
+  }
+
+  async handleTWA() {
+    this.isReady = false;
+
+    const goodIcon = await this.getGoodIcon();
+
+    let maskIcon = this.getMaskableIcon();
+
+    if (goodIcon.message !== undefined) {
+      this.isReady = true;
+      this.errorMessage = goodIcon.message;
+    } else {
+      this.callTWA(goodIcon, maskIcon);
+    }
+  }
+
+  public async callTWA(goodIcon, maskIcon) {
+    const packageid = this.packageName || generatePackageId((this.manifest.short_name as string) || (this.manifest.name as string));
+
+    let startURL = (this.manifest.start_url as string).replace(
+      `https://${new URL(this.siteHref).hostname}`,
+      ""
+    );
+
+    let manifestStartUrl = new URL(this.manifest.start_url as string);
+    if (manifestStartUrl.search && startURL.length > 0) {
+      startURL = `${startURL}${manifestStartUrl.search}`;
+    }
+
+    const body = JSON.stringify({
+      packageId: this.packageName ||  `com.${packageid
+        .split(" ")
+        .join("_")
+        .toLowerCase()}`,
+      host: new URL(this.siteHref).hostname,
+      name: this.manifest.short_name || this.manifest.name,
+      themeColor: this.manifest.theme_color || this.manifest.background_color,
+      navigationColor:
+        this.manifest.theme_color || this.manifest.background_color,
+      backgroundColor:
+        this.manifest.background_color || this.manifest.theme_color,
+      startUrl:
+        startURL && startURL.length > 0
+          ? startURL
+          : `${manifestStartUrl.search ? "/" + manifestStartUrl.search : "/"}`,
+      iconUrl: goodIcon.src,
+      maskableIconUrl: maskIcon ? maskIcon.src : null,
+      appVersion: "1.0.0",
+      useBrowserOnChromeOS: true,
+      splashScreenFadeOutDuration: 300,
+      enableNotifications: false,
+      shortcuts: this.manifest.shortcuts || [],
+      webManifestUrl: this.manifestUrl,
+      signingInfo: {
+        fullName: "PWABuilder User",
+        organization: "pwabuilder",
+        organizationalUnit: "Engineering Department",
+        countryCode: "US"
+      }
+    });
+
+    try {
+      const response = await fetch(
+        "https://pwabuilder-cloudapk.azurewebsites.net/generateSignedApkZip",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: body
+        }
+      );
+
+      if(response.status === 200) {
+        const data = await response.blob();
+
+        let url = window.URL.createObjectURL(data);
+        window.location.assign(url);
+      }
+      else {
+        this.errorMessage = `Status code: ${response.status}, Error: ${response.statusText}`;
+      }
+
+      this.isReady = true;
+    } catch (err) {
+      this.isReady = true;
+
+      this.errorMessage =
+        `Status code: ${err.status}, Error: ${err.statusText}` || err;
+    }
+  }
+
+  public getMaskableIcon() {
+    // make copy of icons so nuxt does not complain
+    const icons = [...(this.manifest as any).icons];
+
+    let found;
+
+    icons.forEach(icon => {
+      if (icon.purpose && icon.purpose === "maskable") {
+        found = icon;
+      }
+    });
+
+    return found;
+  }
+
+  public async getGoodIcon(): Promise<any> {
+    return new Promise<any>(async resolve => {
+      // make copy of icons so nuxt does not complain
+      const icons = [...(this.manifest as any).icons];
+
+      // we prefer large icons first, so sort array from largest to smallest
+      const sortedIcons = icons.sort((a, b) => {
+        // convert icon.sizes to a legit integer we can use to sort
+        let aSize = parseInt(a.sizes.split("x").pop());
+        let bSize = parseInt(b.sizes.split("x").pop());
+
+        return bSize - aSize;
+      });
+
+      let goodIcon = sortedIcons.find(icon => {
+        // look for 512 icon first, this is the best case
+        if (icon.sizes.includes("512") && !icon.src.includes("data:image")) {
+          return icon;
+        }
+        // 192 icon up next if we cant find a 512. This may end up with the icon on the splashscreen
+        // looking a little blurry, but better than no icon
+        else if (
+          icon.sizes.includes("192") &&
+          !icon.src.includes("data:image")
+        ) {
+          return icon;
+        }
+        // cant find a good icon
+        else {
+          return null;
+        }
+      });
+
+      if (goodIcon) {
+        await this.isValidUrl(goodIcon.src).then(
+          function fulfilled() {
+            resolve(goodIcon);
+          },
+
+          function rejected() {
+            // Continue to iterate icons collection to find a good icon.
+          }
+        );
+      }
+
+      let i = 0;
+      for (i; i < (this.manifest as any).icons.length; i++) {
+        goodIcon = (this.manifest as any).icons[i];
+        var imageFound = false;
+        if (!goodIcon.src.includes("data:image")) {
+          await this.isValidUrl(goodIcon.src).then(
+            function fulfilled() {
+              imageFound = true;
+            },
+
+            function rejected() {
+              imageFound = false;
+            }
+          );
+          if (imageFound) {
+            break;
+          }
+        }
+      }
+
+
+      if (i === (this.manifest as any).icons.length) {
+        resolve({ isValidUrl: false, message: `${goodIcon.src} is not found` });
+      } else {
+        resolve(goodIcon);
+      }
+    });
+  }
+
+  public async isValidUrl(url) {
+    const imgPromise = new Promise(function imgPromise(resolve, reject) {
+      const imgElement = new Image();
+
+      // When image is loaded, resolve the promise
+      imgElement.addEventListener("load", function imgOnLoad() {
+        resolve(this);
+      });
+
+      // When there's an error during load, reject the promise
+      imgElement.addEventListener("error", function imgOnError() {
+        reject();
+      });
+
+      imgElement.src = url;
+    });
+
+    return imgPromise;
+  }
+
+  public imageFound() {
+    return { isValidUrl: true };
+  }
+
+  public imageNotFound() {
+    return { isValidUrl: false };
   }
 
   public async buildArchive(
     platform: string,
-    parameters: string[],
+    parameters: string[]
   ): Promise<void> {
     if (!this.isReady) {
       return;
+    }
+
+    if (platform === "androidTWA") {
+      await this.handleTWA();
+    } else {
+      try {
+        this.isReady = false;
+
+        if (platform === "msteams") {
+          await this.buildTeams({
+            href: this.siteHref,
+            options: parameters
+          });
+        } else {
+          await this.build({
+            platform: platform,
+            href: this.siteHref,
+            options: parameters
+          });
+        }
+
+        if (this.archiveLink) {
+          window.location.href = this.archiveLink;
+        }
+
+        // Because browser delay
+        setTimeout(() => (this.isReady = true), 3000);
+      } catch (e) {
+        this.isReady = true;
+        this.errorMessage = e;
+      }
     }
 
     const overrideValues = {
@@ -95,22 +351,10 @@ export default class extends Vue {
       pageHeight: window.innerHeight
     };
 
-    this.$awa(overrideValues);
+    if (this.$awa) {
 
     try {
-      this.isReady = false;
-
-      await this.build({ platform: platform, href: this.siteHref, options: parameters });
-
-      if (this.archiveLink) {
-        window.location.href = this.archiveLink;
-      }
-
-      // Because browser delay
-      setTimeout(() => (this.isReady = true), 3000);
-    } catch (e) {
-      this.isReady = true;
-      this.errorMessage = e;
+      this.$awa(overrideValues);
     }
   }
 }
@@ -118,13 +362,20 @@ export default class extends Vue {
 declare var awa: any;
 
 Vue.prototype.$awa = function(config) {
-  awa.ct.capturePageView(config);
+  if (awa) {
+    awa.ct.capturePageView(config);
+  }
+
   return;
 };
 </script>
 
-
 <style lang="scss" scoped>
+button:disabled {
+  background: rgba(60, 60, 60, .1);
+  cursor: pointer;
+}
+
 #errorDiv {
   position: absolute;
   color: white;
@@ -134,13 +385,15 @@ Vue.prototype.$awa = function(config) {
   position: fixed;
   bottom: 2em;
   right: 2em;
-  background: #3C3C3C;
+  background: #3c3c3c;
   padding: 1em;
   border-radius: 4px;
 }
 
 #colorSpinner {
-  margin-top: -4px;
+  margin-top: -1px !important;
+  margin-left: -7px;
+  height: 32px;
 }
 
 @-moz-document url-prefix() {
@@ -151,13 +404,10 @@ Vue.prototype.$awa = function(config) {
 }
 
 .flavor {
-  position: relative;
   width: 32px;
   height: 32px;
   border-radius: 40px;
   overflow: hidden;
-  left: -7px;
-  top: -2px;
 }
 
 .flavor > .colorbands {
@@ -191,7 +441,8 @@ Vue.prototype.$awa = function(config) {
 .icon {
   position: relative;
   color: white;
-  top: -27px;
+  top: -25px;
+  left: 7px;
 
   .lds-dual-ring {
     display: inline-block;
@@ -220,5 +471,4 @@ Vue.prototype.$awa = function(config) {
     }
   }
 }
-
 </style>

@@ -7,7 +7,7 @@
     </div>
 
     <div id="monacoHeader">
-      <button @click="copy()" id="copyButton">
+      <button @click="copy()" class="copyButton">
         <i class="fas fa-copy"></i>
       </button>
 
@@ -39,10 +39,7 @@ export default class extends Vue {
 
   async mounted() {
     const response = await fetch(this.snippitURL);
-    console.log(response);
     const data = await response.text();
-
-    console.log("snippit data", data);
 
     this.actualCode = data;
 
@@ -146,7 +143,7 @@ p {
     background: white;
   }
 
-  #copyButton {
+  .copyButton {
     width: 32px;
     border: none;
     height: 32px;

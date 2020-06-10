@@ -87,20 +87,16 @@ export default class extends Vue {
       mappedName: "Create Share"
     },
     {
-      realName: "geolocation",
-      mappedName: "Use Geolocation"
-    },
-    {
-      realName: "clipboard",
-      mappedName: "Copy to Clipboard"
-    },
-    {
-      realName: "adaptiveCards",
-      mappedName: "Adaptive Cards"
-    },
-    {
       realName: "installButton",
       mappedName: "Install your PWA"
+    },
+    {
+      realName: "inking",
+      mappedName: "Enable 2D inking on the web"
+    },
+    {
+      realName: "authButton",
+      mappedName: "Sign In with Microsoft, Google, Facebook, Apple"
     },
     {
       realName: "midi",
@@ -193,6 +189,8 @@ export default class extends Vue {
         });
       }
     });
+
+    this.$awa(overrideValues);
   }
 
   generateID() {
@@ -224,7 +222,12 @@ export default class extends Vue {
   }
 
   goBack() {
-    window.history.back();
+    if (document.referrer.indexOf(window.location.origin) === 0) {
+      window.history.back();
+    } else {
+      // If the current document was not opened through a link (for example, user navigated to the page directly or through a bookmark)
+      window.location.href = `${window.location.origin}/features`;
+    }
   }
 
   async showToast() {
@@ -254,20 +257,19 @@ export default class extends Vue {
       if ((navigator as any).clipboard) {
         try {
           await (navigator as any).clipboard.writeText(location.href);
-
-          this.showToast();
         } catch (err) {
           console.error(err);
         }
       } else {
         this.copyToClipboard(location.href);
-        this.showToast();
       }
     }
   }
 
   copyToClipboard(str) {
-    if (document) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(str);
+    } else if (document) {
       const el = document.createElement("textarea"); // Create a <textarea> element
       el.value = str; // Set its value to the string that you want copied
       el.setAttribute("readonly", ""); // Make it readonly to be tamper-proof
@@ -291,8 +293,10 @@ export default class extends Vue {
 }
 
 Vue.prototype.$awa = function(config) {
-  console.log("config", config);
-  awa.ct.capturePageView(config);
+  if (awa) {
+    awa.ct.capturePageView(config);
+  }
+  
   return;
 };
 
@@ -337,7 +341,7 @@ declare var awa: any;
     rgb(60, 60, 60) 57.68%
   );
   color: white;
-  font-family: Poppins;
+  font-family: sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 12px;
@@ -353,7 +357,7 @@ declare var awa: any;
 #clientIdBlock #generatedDiv {
   color: white;
   width: 150.33px;
-  font-family: Poppins;
+  font-family: sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 12px;
@@ -371,7 +375,38 @@ declare var awa: any;
 }
 
 #docsMain #contentContainer img {
+  // responsive images
+  max-width: 100%;
+  height: auto;
+}
+
+#docsMain #contentContainer table {
+  display: block;
   width: 100%;
+  overflow: auto;
+
+  thead {
+    box-sizing: border-box;
+
+    th {
+      text-align: center;
+      font-size: 1.1em !important;
+      font-weight: 600;
+      padding: 10px;
+    }
+  }
+
+  tr {
+    background-color: white;
+    border: 1px solid #dfe2e5;
+    border-spacing: 0;
+    border-collapse: collapse;
+  }
+
+  td {
+    padding: 6px 13px;
+    border: 1px solid #dfe2e5;
+  }
 }
 
 .codeBlockHeader {
@@ -434,7 +469,7 @@ declare var awa: any;
   background: white;
   margin-top: -80px;
 
-  #headerDiv {
+  .headerDiv {
     background: rgba(31, 194, 200, 1);
     background: -moz-linear-gradient(
       left,
@@ -483,7 +518,7 @@ declare var awa: any;
   }
 
   @media (max-width: 1336px) {
-    #headerDiv {
+    .headerDiv {
       padding-left: 88px;
       padding-right: 35px;
     }
@@ -513,26 +548,27 @@ declare var awa: any;
     width: 140px;
   }
 
-  #leftSide > table > tbody > tr:nth-child(1) > td:nth-child(2),
-  #leftSide > table > tbody > tr:nth-child(2) > td:nth-child(2) {
-    font-size: 14px;
-    font-weight: normal;
-  }
-
   #contentContainer {
     display: flex;
-    padding-top: 30px;
     padding-left: 159px;
     padding-right: 159px;
+    flex-direction: column-reverse;
 
     #leftSide {
       flex: 1;
-      width: 50%;
+      // width: 50%;
       margin-right: 20px;
 
       h3 {
-        font-size: 18px;
+        font-size: 24px;
         font-weight: bold;
+        margin: 24px 0 16px 0;
+      }
+
+      h4 {
+        font-size: 20px;
+        font-weight: bold;
+        margin: 24px 0 16px 0;
       }
 
       p {
@@ -552,12 +588,12 @@ declare var awa: any;
     #rightSide {
       display: initial;
       flex: 1;
-      width: 50%;
-      margin-left: 20px;
+      margin-top: 28px;
 
       h3 {
-        font-size: 18px;
+        font-size: 24px;
         font-weight: bold;
+        margin: 24px 0 16px 0;
       }
     }
   }
@@ -595,20 +631,19 @@ declare var awa: any;
 }
 
 @media (max-width: 800px) {
-  #docsMain #headerDiv h2 {
+  #docsMain .headerDiv h2 {
     width: 45%;
   }
 }
 
 @media (max-width: 700px) {
-  #docsMain #headerDiv h2 {
+  #docsMain .headerDiv h2 {
     width: 40%;
   }
 }
 
 @media (max-width: 650px) {
   #docsMain #contentContainer {
-    flex-direction: column;
     padding-left: 25px;
     padding-right: 25px;
   }
@@ -619,14 +654,10 @@ declare var awa: any;
     margin-right: 0px;
     margin-left: 0px;
   }
-
-  #docsMain #contentContainer #rightSide {
-    margin-top: 4em;
-  }
 }
 
 @media (max-width: 630px) {
-  #docsMain #headerDiv h2 {
+  #docsMain .headerDiv h2 {
     display: none;
   }
 }
@@ -644,5 +675,19 @@ declare var awa: any;
   #featDetailShareButton {
     display: none;
   }
+}
+
+div#rightSide::before {
+    content: "Quick startup guide";
+    font-size: 28px;
+    font-weight: bold;
+    margin: 28px 0px 16px 0;
+}
+
+div#leftSide::before {
+    content: "Documentation";
+    font-size: 28px;
+    font-weight: bold;
+    margin: 28px 0px 16px 0;
 }
 </style>

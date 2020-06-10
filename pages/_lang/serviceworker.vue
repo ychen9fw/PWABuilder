@@ -53,14 +53,14 @@
         <div id="inputSection">
           <form @submit.prevent="download" @keydown.enter.prevent="download">
             <div
-              id="inputContainer"
+              class="inputContainer"
               v-for="sw in serviceworkers"
               :key="sw.title"
               @click="selectServiceWorker(sw.id)"
               v-bind:class="{ active: serviceworker$ === sw.id }"
             >
               <label class="l-generator-label" :for="sw.id">
-                <div id="inputDiv">
+                <div class="inputDiv">
                   <!--<input
                     type="radio"
                     :value="sw.id"
@@ -69,7 +69,7 @@
                     :id="sw.id"
                   >-->
 
-                  <div id="titleBox">
+                  <div class="titleBox">
                     <h4>{{ sw.title }}</h4>
 
                     <!--<i v-pre v-if="serviceworker$ === sw.id" class="fas fa-check"></i>-->
@@ -91,11 +91,11 @@
 
         <div id="doneDiv">
           <button @click="download()" id="downloadSWButton">
-            <span v-if="!isBuilding">{{ $t("serviceworker.download") }}</span>
+            <span v-if="!isBuilding">{{ $t('serviceworker.download') }}</span>
             <span v-if="isBuilding">
               <Loading
                 :active="true"
-                class="u-display-inline_block u-margin-left-sm"
+              <Loading :active="true" class="u-display-inline_block u-margin-left-sm" />
               />
             </span>
           </button>
@@ -104,20 +104,7 @@
 
       <section id="rightSide" class="swRightSide">
         <CodeViewer
-          class="topViewer"
-          color="#F0F0F0"
-          theme="lighter"
-          code-type="javascript"
-          :size="viewerSize"
-          :code="webPreview"
-          :title="$t('serviceworker.code_preview_web')"
-          :showToolbar="false"
-          :showHeader="true"
-        >
-          <h3>Add this code to your landing page in a &lt;script&gt; tag:</h3>
-        </CodeViewer>
-
-        <CodeViewer
+          v-if="codeViewerLoadingDelayBottom"
           class="bottomViewer"
           color="#F0F0F0"
           theme="darker"
@@ -127,9 +114,26 @@
           :title="$t('serviceworker.code_preview_serviceworker')"
           :showToolbar="false"
           :showHeader="true"
+          monaco-id="bottomViewerId"
+        >
+          <h3>Add this code to a file named "pwabuilder-sw.js" on your site root:</h3>
+        </CodeViewer>
+
+        <CodeViewer
+          v-if="codeViewerLoadingDelayTop"
+          class="topViewer"
+          color="#F0F0F0"
+          theme="lighter"
+          code-type="javascript"
+          :size="viewerSize"
+          :code="webPreview"
+          :title="$t('serviceworker.code_preview_web')"
+          :showToolbar="false"
+          :showHeader="true"
+          monaco-id="topViewerId"
         >
           <h3>
-            Add this code to a file named "pwabuilder-sw.js" on your site root:
+          <h3>Add this code to your landing page in a &lt;script&gt; tag:</h3>
           </h3>
         </CodeViewer>
       </section>
@@ -137,10 +141,11 @@
 
     <footer>
       <p>
-        PWA Builder was founded by Microsoft as a community guided, open source
+        PWA Builder was founded by Microsoft as a community guided, open source project to help move PWA adoption forward.
         project to help move PWA adoption forward.
-        <a href="https://privacy.microsoft.com/en-us/privacystatement"
-          >Our Privacy Statement</a
+        <a
+          href="https://privacy.microsoft.com/en-us/privacystatement"
+        >Our Privacy Statement</a>
         >
       </p>
     </footer>
@@ -186,6 +191,8 @@ export default class extends Vue {
   public hasSW = false;
   public betterSW = false;
   public openModal: boolean = false;
+  public codeViewerLoadingDelayTop = false;
+  public codeViewerLoadingDelayBottom = false;
 
   @ServiceworkerState serviceworkers: ServiceWorker[];
   @ServiceworkerState serviceworker: number;
@@ -204,6 +211,14 @@ export default class extends Vue {
   }
 
   mounted() {
+    setTimeout(() => {
+      this.codeViewerLoadingDelayTop = true;
+    }, 300);
+
+    setTimeout(() => {
+      this.codeViewerLoadingDelayBottom = true;
+    }, 600);
+
     const overrideValues = {
       uri: window.location.href,
       pageName: "serviceWorkerPage",
@@ -218,13 +233,23 @@ export default class extends Vue {
     this.openModal = !this.openModal;
   }
 
-  closePushModal() {
-    this.openModal = false;
-  }
-
   public selectServiceWorker(id: number) {
+    this.serviceworker$ = id;
+
     console.log(id);
     this.serviceworker$ = id;
+
+    const overrideValues = {
+      uri: window.location.href,
+      pageName: `serviceWorker${id}`,
+      pageHeight: window.innerHeight
+    };
+  }
+
+  closePushModal() {
+    this.openModal = false;
+
+    this.$awa(overrideValues);
   }
 
   async destroyed() {
@@ -248,6 +273,14 @@ export default class extends Vue {
       if (this.serviceworker$) {
         const cleanedSW = this.serviceworker$.toString();
         await this.downloadServiceWorker(cleanedSW);
+
+        const overrideValues = {
+          uri: window.location.href,
+          pageName: `serviceWorkerDownloaded${this.serviceworker$}`,
+          pageHeight: window.innerHeight
+        };
+
+        this.$awa(overrideValues);
       }
     } catch (e) {
       console.error(e);
@@ -275,14 +308,14 @@ export default class extends Vue {
   @Watch("serviceworker$")
   async onServiceworker$Changed(): Promise<void> {
     try {
-      console.log(this.serviceworker$);
-
       // temp check for demo
       if (this.serviceworker$ === 6 || this.serviceworker$ === 7) {
         await this.getCode(4);
       } else {
         await this.getCode(this.serviceworker$);
       }
+
+      await this.getCode(this.serviceworker$);
 
       this.analyze();
     } catch (e) {
@@ -305,9 +338,12 @@ export default class extends Vue {
 
 declare var awa: any;
 
+
 Vue.prototype.$awa = function(config) {
-  console.log(config);
-  awa.ct.capturePageView(config);
+  if (awa) {
+    awa.ct.capturePageView(config);
+  }
+
   return;
 };
 </script>
@@ -340,6 +376,7 @@ footer a {
   color: #707070;
   text-decoration: underline;
 }
+
 
 #swHeader {
   margin-bottom: 40px;
@@ -516,7 +553,7 @@ footer a {
       padding-top: 40px;
 
       h2 {
-        font-family: Poppins;
+        font-family: sans-serif;
         font-style: normal;
         font-weight: 600;
         font-size: 24px;
@@ -532,7 +569,7 @@ footer a {
     }
 
     #inputSection {
-      #inputContainer {
+      .inputContainer {
         cursor: pointer;
         border-radius: 4px;
         padding-top: 24px;
@@ -547,7 +584,7 @@ footer a {
           line-height: 21px;
         }
 
-        #inputDiv {
+        .inputDiv {
           display: flex;
           align-items: unset;
 
@@ -556,12 +593,12 @@ footer a {
             flex: 1;
           }
 
-          #titleBox {
+          .titleBox {
             display: flex;
             justify-content: space-between;
           }
 
-          #titleBox svg {
+          .titleBox svg {
             height: 24px;
             margin-left: 10px;
             font-size: 16px;
@@ -601,7 +638,7 @@ footer a {
       height: 44px;
       border-radius: 20px;
       border: none;
-      font-family: Poppins;
+      font-family: sans-serif;
       font-style: normal;
       font-weight: 600;
       font-size: 14px;
@@ -681,7 +718,7 @@ footer a {
     width: initial;
   }
 
-  #sideBySide #leftSide #inputSection #inputContainer {
+  #sideBySide #leftSide #inputSection .inputContainer {
     padding-left: 14px;
     padding-right: 14px;
   }

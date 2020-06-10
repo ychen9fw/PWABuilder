@@ -9,6 +9,9 @@ console.log(`Environment: ${process.env.NODE_ENV}`);
 module.exports = {
   env: env,
   head: {
+    htmlAttrs: {
+      lang: 'en'
+    },
     title: 'PWABuilder',
     meta: [{
         charset: 'utf-8'
@@ -57,15 +60,7 @@ module.exports = {
       },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css?family=Poppins:600,700&display=swap"
-      },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap"
-      },
-      {
-        rel: "stylesheet",
-        href: "https://unpkg.com/@ionic/core@latest/css/ionic.bundle.css"
+        href: "/css/all.css"
       },
       {
         rel: 'apple-touch-icon',
@@ -113,21 +108,17 @@ module.exports = {
       }
     ],
     script: [{
-        src: '/pwabuilder-sw-register.js'
+        src: '/pwabuilder-sw-register.js',
+        type: 'module'
       },
       {
         src: "https://az725175.vo.msecnd.net/scripts/jsll-4.js"
       },
       {
-        src: "https://use.fontawesome.com/releases/v5.0.10/js/all.js",
-        async: true,
-        defer: true
-      },
-      {
         src: '/awa-register.js'
       },
       {
-        src: 'https://unpkg.com/@webcomponents/webcomponentsjs@2.4.0/webcomponents-loader.js'
+        src: '/webcomponents-polyfill.js'
       },
       {
         src: '/copyButton.js',
@@ -138,6 +129,10 @@ module.exports = {
         type: 'module'
       },
       {
+        src: '/pwa-install.js', 
+        type: 'module 
+      },
+
         src: '/pwab-push.js',
         type: 'module'
       },
