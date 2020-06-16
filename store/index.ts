@@ -5,7 +5,6 @@ import * as push from "./modules/push";
 import * as publish from "./modules/publish";
 import * as i18n from "./modules/i18n";
 import * as windows from "./modules/windows";
-import { Push } from "typescript";
 
 // More info about store: https://vuex.vuejs.org/en/core-concepts.html
 // Structure of the store:
