@@ -244,10 +244,18 @@ export default class extends Vue {
       pageName: `serviceWorker${id}`,
       pageHeight: window.innerHeight
     };
+
+    this.$awa(overrideValues);
   }
 
   closePushModal() {
     this.openModal = false;
+
+    const overrideValues = {
+      uri: window.location.href,
+      pageName: `serviceWorker${this.serviceworker$}`,
+      pageHeight: window.innerHeight
+    };
 
     this.$awa(overrideValues);
   }
