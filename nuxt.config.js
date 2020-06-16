@@ -14,33 +14,33 @@ module.exports = {
     },
     title: 'PWABuilder',
     meta: [{
-        charset: 'utf-8'
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1'
-      },
-      {
-        hid: 'description',
-        name: 'description',
-        content: 'All the tools you need to build and deploy your Progressive Web Apps.'
-      },
-      {
-        name: 'msapplication-TileImage',
-        content: '/Images/assets/icons/ms-icon-144x144-487a503e5cb29bbe0df7296db4093b7e.png'
-      },
-      {
-        name: 'msapplication-TileColor',
-        content: '#3c3c3c'
-      },
-      {
-        name: 'theme-color',
-        content: '#000000'
-      },
-      {
-        name: 'ms.appid',
-        content: 'PWABuilder'
-      }
+      charset: 'utf-8'
+    },
+    {
+      name: 'viewport',
+      content: 'width=device-width, initial-scale=1'
+    },
+    {
+      hid: 'description',
+      name: 'description',
+      content: 'All the tools you need to build and deploy your Progressive Web Apps.'
+    },
+    {
+      name: 'msapplication-TileImage',
+      content: '/Images/assets/icons/ms-icon-144x144-487a503e5cb29bbe0df7296db4093b7e.png'
+    },
+    {
+      name: 'msapplication-TileColor',
+      content: '#3c3c3c'
+    },
+    {
+      name: 'theme-color',
+      content: '#000000'
+    },
+    {
+      name: 'ms.appid',
+      content: 'PWABuilder'
+    }
 
     ],
     link: [
@@ -108,47 +108,46 @@ module.exports = {
       }
     ],
     script: [{
-        src: '/pwabuilder-sw-register.js',
-        type: 'module'
-      },
-      {
-        src: "https://az725175.vo.msecnd.net/scripts/jsll-4.js"
-      },
-      {
-        src: '/awa-register.js'
-      },
-      {
-        src: '/webcomponents-polyfill.js'
-      },
-      {
-        src: '/copyButton.js',
-        type: 'module'
-      },
-      {
-        src: '/platformPop.js',
-        type: 'module'
-      },
-      {
-        src: '/pwa-install.js', 
-        type: 'module 
-      },
-
-        src: '/pwab-push.js',
-        type: 'module'
-      },
-      {
-        src: "https://fluentweb-nightly-static.netlify.com/fluentweb/fluentweb.js",
-        async: true,
-        defer: true
-      },
-      {
-        src: 'https://unpkg.com/@ionic/core@latest/dist/ionic.js'
-      },
-      {
-        src: 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwainstall@1.2.8',
-        type: 'module'
-      }
-    ]
+      src: '/pwabuilder-sw-register.js',
+      type: 'module'
+    },
+    {
+      src: "https://az725175.vo.msecnd.net/scripts/jsll-4.js"
+    },
+    {
+      src: '/awa-register.js'
+    },
+    {
+      src: '/webcomponents-polyfill.js'
+    },
+    {
+      src: '/copyButton.js',
+      type: 'module'
+    },
+    {
+      src: '/platformPop.js',
+      type: 'module'
+    },
+    {
+      src: '/pwa-install.js',
+      type: 'module'
+    },
+    {
+      src: '/pwab-push.js',
+      type: 'module'
+    },
+    {
+      src: "https://fluentweb-nightly-static.netlify.com/fluentweb/fluentweb.js",
+      async: true,
+      defer: true
+    },
+    {
+      src: 'https://unpkg.com/@ionic/core@latest/dist/ionic.js'
+    },
+    {
+      src: 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwainstall@1.2.8',
+      type: 'module'
+    }]
   },
   loading: {
     color: '#1FC2C8'
