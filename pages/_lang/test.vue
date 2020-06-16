@@ -12,7 +12,13 @@
         <div class="testInputLabel">
           <label for="emailInput">Email:</label>
 
-          <input type="email" id="emailInput" name="emailInput" placeholder="janedoe@something.com" />
+          <input
+            type="email"
+            id="emailInput"
+            name="emailInput"
+            placeholder="janedoe@something.com"
+            :model="email"
+          />
         </div>
 
         <div class="testInputLabel">
@@ -23,6 +29,7 @@
             id="publicKeyInput"
             name="publickeyInput"
             placeholder="BMCRD0PP23_mhf7IWI1FLfw219PtjqV63XovTHqYdXgKLaLykCNJ8axD5hz4etTLI9bVfjMPIZUamPg3A5ZvXK4"
+            :model="publicKey"
           />
         </div>
 
@@ -34,13 +41,20 @@
             id="titleInput"
             name="titleInput"
             placeholder="Test Notification title"
+            :model="title"
           />
         </div>
 
         <div class="testInputLabel">
           <label for="bodyInput">Notification Body:</label>
 
-          <input type="text" id="bodyInput" name="bodyInput" placeholder="Test Notification body" />
+          <input
+            type="text"
+            id="bodyInput"
+            name="bodyInput"
+            placeholder="Test Notification body"
+            :model="body"
+          />
         </div>
 
         <div class="testInputLabel">
@@ -68,7 +82,14 @@ import HubHeader from "~/components/HubHeader.vue";
     HubHeader
   }
 })
-export default class extends Vue {}
+export default class extends Vue {
+  data: {
+    email: "";
+    publicKey: "";
+    title: "";
+    body: "";
+  };
+}
 </script>
 
 <style lang="scss" scoped>
