@@ -348,8 +348,6 @@ export default class extends Vue {
     };
 
     if (this.$awa) {
-
-    try {
       this.$awa(overrideValues);
     }
   }
