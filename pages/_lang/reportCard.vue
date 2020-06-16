@@ -78,17 +78,16 @@
                 <i class="fas fa-chevron-down"></i>
 
                 <div v-if="openDrop" id="starterDropdown">
-                <button id="starterDownloadButton" @click="downloadStarter">
-                  <i class="fas fa-arrow-down"></i>
-                  Download
-                </button>
-                <button @click="cloneStarter">
-                  <i class="fab fa-github"></i>
-                  Clone from Github
-                </button>
-              </div>
+                  <button id="starterDownloadButton" @click="downloadStarter">
+                    <i class="fas fa-arrow-down"></i>
+                    Download
+                  </button>
+                  <button @click="cloneStarter">
+                    <i class="fab fa-github"></i>
+                    Clone from Github
+                  </button>
+                </div>
               </button>
-
             </div>
           </div>
         </div>
@@ -170,7 +169,7 @@
 
       <FeatureCard
         class="topFeatures"
-        v-if="topSamples.length > 0"
+        v-show="topSamples.length > 0"
         v-for="(sample, index) in topSamples"
         :class="{ firstFeature: index === 0 }"
         :sample="sample"
@@ -521,7 +520,8 @@ declare var awa: any;
   box-shadow: 0 0 4px 1px #0000002e;
 }
 
-#starterActions .fa, #starterActions .fas {
+#starterActions .fa,
+#starterActions .fas {
   margin-right: 4px;
 }
 
@@ -862,61 +862,60 @@ h2 {
       box-shadow: none;
       color: inherit;
       text-decoration: underline;
+    }
+  }
+}
+
+@media (max-width: 425px) {
+  footer {
+    margin-right: initial;
+    margin-left: initial;
+  }
+  footer p {
+    width: 75%;
+    margin-bottom: 0px;
+  }
+}
+
+#bottomHalfHome {
+  grid-row: 2;
+
+  #starterSection {
+    background: white;
+    color: black;
+    padding: 1.4em;
+    border-radius: 6px;
+    width: 24em;
+
+    h3 {
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    #starterActions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 28px;
+
+      button {
+        border-radius: 20px;
+        height: 40px;
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 21px;
+
+        background: none;
+        color: black;
+        padding-left: 0;
+        padding-right: 0;
+        border: none;
       }
     }
   }
 
-  @media (max-width: 425px) {
-    footer {
-      margin-right: initial;
-      margin-left: initial;
-    }
-    footer p {
-      width: 75%;
-      margin-bottom: 0px;
-    }
-  }
-
-  #bottomHalfHome {
-    grid-row: 2;
-
+  @media (max-width: 640px) {
     #starterSection {
-      background: white;
-      color: black;
-      padding: 1.4em;
-      border-radius: 6px;
-      width: 24em;
-
-      h3 {
-        font-weight: bold;
-        font-size: 20px;
-      }
-
-      #starterActions {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 28px;
-
-        button {
-          border-radius: 20px;
-          height: 40px;
-          font-weight: 600;
-          font-size: 14px;
-          line-height: 21px;
-
-          background: none;
-          color: black;
-          padding-left: 0;
-          padding-right: 0;
-          border: none;
-        }
-      }
-    }
-
-    @media (max-width: 640px) {
-      #starterSection {
-        display: none;
-      }
+      display: none;
     }
   }
 }
