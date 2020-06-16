@@ -25,8 +25,7 @@
           <a
             href="https://developer.microsoft.com/en-us/windows"
             target="_blank"
-            >{{ $t("publish.dev_center") }}</a
-          >
+          >{{ $t("publish.dev_center") }}</a>
           {{ $t("publish.publisher_details") }}
         </label>
       </div>
@@ -86,20 +85,18 @@
       </section>
     </Modal>
 
-  <Modal
-    :title="$t('publish.package_name')"
-    :button_name="$t('modal.done')"
-    ref="androidPWAModal"
-    @modalSubmit="onDoneAndroidPWAModal"
-    @cancel="onCancelAndroidPWAModal"
-    v-on:modalOpened="modalOpened()"
-    v-on:modalClosed="androidModalClosed()"
-    v-if="androidForm"
+    <Modal
+      :title="$t('publish.package_name')"
+      :button_name="$t('modal.done')"
+      ref="androidPWAModal"
+      @modalSubmit="onDoneAndroidPWAModal"
+      @cancel="onCancelAndroidPWAModal"
+      v-on:modalOpened="modalOpened()"
+      v-on:modalClosed="androidModalClosed()"
+      v-if="androidForm"
     >
       <div id="topLabelBox" slot="extraP">
-        <label id="topLabel">
-          {{ $t("publish.package_name_detail") }}
-        </label>
+        <label id="topLabel">{{ $t("publish.package_name_detail") }}</label>
       </div>
 
       <section id="#androidModalBody">
@@ -132,8 +129,7 @@
             Download your
             <a
               href="https://developers.google.com/web/updates/2019/08/twas-quickstart"
-              >PWA package</a
-            >
+            >PWA package</a>
             for Google Play
           </p>
 
@@ -143,10 +139,13 @@
           >
             Your download will contain instructions for how to submit your app
             to the Google Play store
-            <i class="fas fa-external-link-alt"></i>
+            <i
+              class="fas fa-external-link-alt"
+            ></i>
           </a>
           <p v-if="this.androidForm.package_name">
-            <span>Package Name: </span>   {{ $t(this.androidForm.package_name) }}
+            <span>Package Name:</span>
+            {{ $t(this.androidForm.package_name) }}
           </p>
         </div>
 
@@ -158,12 +157,7 @@
             platform="androidTWA"
             message="Download"
           />
-          <button
-            class="androidDownloadButton"
-            @click="openAndroidOptionModal();"
-          >
-            Options
-          </button>
+          <button class="androidDownloadButton" @click="openAndroidOptionModal();">Options</button>
         </div>
 
         <div id="extraSection">
@@ -210,9 +204,7 @@
                 referrerUri: 'https://www.pwabuilder.com/publish/windows10-appx'
               });
             "
-          >
-            Generate
-          </button>
+          >Generate</button>
         </div>
       </section>
     </div>
@@ -245,8 +237,7 @@
             :class="{ 'error': teamsForm.shortDescription !== null && teamsForm.shortDescription.length > 80 }"
             v-model="teamsForm.shortDescription"
             @change="validateTeamsForm()"
-          >
-          </textarea>
+          ></textarea>
         </div>
         <div class="platModalField">
           <label for="long-description">
@@ -258,8 +249,7 @@
             :class="{ 'error': teamsForm.longDescription !== null && teamsForm.longDescription.length > 4000 }"
             v-model="teamsForm.longDescription"
             @change="validateTeamsForm()"
-          >
-          </textarea>
+          ></textarea>
         </div>
         <div class="platModalField">
           <label for="privacy">
@@ -291,15 +281,27 @@
             <h4>App Image</h4>
             <p>The image needs to be 192x192, a solid background color, preferably the same as your w3c manifest background color.</p>
           </label>
-          <button id="uploadIconImage-color" name="upload-image-color" @click="clickUploadColorFileInput()">Choose File</button>
-          <input id="upload-file-input-color"
+          <button
+            id="uploadIconImage-color"
+            name="upload-image-color"
+            @click="clickUploadColorFileInput()"
+          >Choose File</button>
+          <input
+            id="upload-file-input-color"
             name="upload-image-color"
             type="file"
             accept="image/jpeg image/png image/svg+xml"
             @change="handleUploadColorIcon()"
           />
-          <Loading :active="true" class="image-upload-loader" v-show="this.uploadColorLoaderActive"/>
-          <p class="file-description" v-show="!this.uploadColorLoaderActive">{{ this.teamsForm.colorImageFile ? this.teamsForm.colorImageFile.name : "No file chosen" }}</p>
+          <Loading
+            :active="true"
+            class="image-upload-loader"
+            v-show="this.uploadColorLoaderActive"
+          />
+          <p
+            class="file-description"
+            v-show="!this.uploadColorLoaderActive"
+          >{{ this.teamsForm.colorImageFile ? this.teamsForm.colorImageFile.name : "No file chosen" }}</p>
         </div>
 
         <div class="platModalField file-chooser">
@@ -307,15 +309,27 @@
             <h4>Teams Silhouette (optional)</h4>
             <p>This image needs to be 32x32, the background transparent, and the silhouette of your app icon in white.</p>
           </label>
-          <button id="uploadIconImage-outline" name="upload-image-outline" @click="clickUploadOutlineFileInput()">Choose File</button>
-          <input id="upload-file-input-outline"
+          <button
+            id="uploadIconImage-outline"
+            name="upload-image-outline"
+            @click="clickUploadOutlineFileInput()"
+          >Choose File</button>
+          <input
+            id="upload-file-input-outline"
             name="upload-image-outline"
             type="file"
             accept="image/jpeg image/png image/svg+xml"
             @change="handleUploadOutlineIcon()"
           />
-          <Loading :active="true" class="image-upload-loader" v-show="this.uploadOutlineLoaderActive"/>
-          <p class="file-description" v-show="!this.uploadOutlineLoaderActive">{{ this.teamsForm.outlineImageFile ? this.teamsForm.outlineImageFile.name : "No file chosen" }}</p>
+          <Loading
+            :active="true"
+            class="image-upload-loader"
+            v-show="this.uploadOutlineLoaderActive"
+          />
+          <p
+            class="file-description"
+            v-show="!this.uploadOutlineLoaderActive"
+          >{{ this.teamsForm.outlineImageFile ? this.teamsForm.outlineImageFile.name : "No file chosen" }}</p>
         </div>
 
         <div class="platModalButtonSection">
@@ -399,9 +413,7 @@
                 </div>
               </div>
 
-              <p>
-                Submit your PWA for further engagement on Microsoft Teams.
-              </p>
+              <p>Submit your PWA for further engagement on Microsoft Teams.</p>
 
               <section class="platformDownloadBar">
                 <button
@@ -573,9 +585,9 @@
       <p>
         PWA Builder was founded by Microsoft as a community guided, open source
         project to help move PWA adoption forward.
-        <a href="https://privacy.microsoft.com/en-us/privacystatement"
-          >Our Privacy Statement</a
-        >
+        <a
+          href="https://privacy.microsoft.com/en-us/privacystatement"
+        >Our Privacy Statement</a>
       </p>
     </footer>
   </main>
@@ -596,7 +608,11 @@ import Toolbar from "~/components/Toolbar.vue";
 import HubHeader from "~/components/HubHeader.vue";
 
 import * as publish from "~/store/modules/publish";
-import { name as generatorName, Icon, Manifest } from "~/store/modules/generator";
+import {
+  name as generatorName,
+  Icon,
+  Manifest
+} from "~/store/modules/generator";
 
 const PublishState = namespace(publish.name, State);
 const PublishAction = namespace(publish.name, Action);
@@ -635,7 +651,7 @@ export default class extends Vue {
     termsOfUseUrl: null,
     colorImageFile: null,
     outlineImageFile: null
-  }
+  };
 
   // Set default web checked items
   public files: any[] = [
@@ -775,7 +791,7 @@ export default class extends Vue {
       termsOfUseUrl: null,
       colorImageFile: null,
       outlineImageFile: null
-    }
+    };
 
     if (this.manifest && this.manifest.description) {
       if (this.manifest.description.length > 80) {
@@ -790,7 +806,9 @@ export default class extends Vue {
 
   public async handleUploadColorIcon(): Promise<void> {
     this.uploadColorLoaderActive = true;
-    const el = <HTMLInputElement> document.getElementById("upload-file-input-color");
+    const el = <HTMLInputElement>(
+      document.getElementById("upload-file-input-color")
+    );
     if (el && el.files) {
       this.teamsForm.colorImageFile = el.files[0];
     }
@@ -810,7 +828,9 @@ export default class extends Vue {
 
   public async handleUploadOutlineIcon(): Promise<void> {
     this.uploadOutlineLoaderActive = true;
-    const el = <HTMLInputElement> document.getElementById("upload-file-input-outline");
+    const el = <HTMLInputElement>(
+      document.getElementById("upload-file-input-outline")
+    );
     if (el && el.files) {
       this.teamsForm.outlineImageFile = el.files[0];
     }
@@ -830,13 +850,13 @@ export default class extends Vue {
 
   public validateTeamsForm(): void {
     const buttonDisabled = this.downloadDisabled;
-    const formFilled = (
+    const formFilled =
       typeof this.teamsForm.publisherName === "string" &&
       typeof this.teamsForm.shortDescription === "string" &&
       typeof this.teamsForm.longDescription === "string" &&
       typeof this.teamsForm.privacyUrl === "string" &&
       typeof this.teamsForm.termsOfUseUrl === "string" &&
-      this.teamsForm.colorImageFile !== null);
+      this.teamsForm.colorImageFile !== null;
 
     if (buttonDisabled && formFilled) {
       this.enableDownloadButton();
@@ -867,14 +887,13 @@ export default class extends Vue {
 
   public async onDoneAndroidPWAModal(): Promise<void> {
     try {
-      if(!this.androidForm.package_name) {
-        throw 'error.package_name_required';
+      if (!this.androidForm.package_name) {
+        throw "error.package_name_required";
       }
-      var KeyWordFound = this.containsKeyWord()
-      if(KeyWordFound.length > 0) {
+      var KeyWordFound = this.containsKeyWord();
+      if (KeyWordFound.length > 0) {
         this.androidPWAError = this.ConstructErrorMessage(KeyWordFound);
-      }
-      else {
+      } else {
         (this.$refs.androidPWAModal as Modal).hide();
         this.openAndroid = true;
         this.androidPWAError = null;
@@ -884,12 +903,64 @@ export default class extends Vue {
     }
   }
 
-  public containsKeyWord()
-  {
-      const package_name = this.androidForm.package_name.split(".");
-      const keywords = ["abstract","assert","boolean","break","byte","case","catch","char","class","const","continue","default","do","double","else","enum","extends","final","finally","float","for","goto","if","implements","import","instanceof","int","interface","long","native","new","package","private","protected","public","return","short","static","strictfp","super","switch","synchronized","this","throw","throws","transient","try","void","volatile","while"];
-      var result = keywords.filter(function(item){ return package_name.indexOf(item) > -1});
-      return result;
+  public containsKeyWord() {
+    const package_name = this.androidForm.package_name.split(".");
+    const keywords = [
+      "abstract",
+      "assert",
+      "boolean",
+      "break",
+      "byte",
+      "case",
+      "catch",
+      "char",
+      "class",
+      "const",
+      "continue",
+      "default",
+      "do",
+      "double",
+      "else",
+      "enum",
+      "extends",
+      "final",
+      "finally",
+      "float",
+      "for",
+      "goto",
+      "if",
+      "implements",
+      "import",
+      "instanceof",
+      "int",
+      "interface",
+      "long",
+      "native",
+      "new",
+      "package",
+      "private",
+      "protected",
+      "public",
+      "return",
+      "short",
+      "static",
+      "strictfp",
+      "super",
+      "switch",
+      "synchronized",
+      "this",
+      "throw",
+      "throws",
+      "transient",
+      "try",
+      "void",
+      "volatile",
+      "while"
+    ];
+    var result = keywords.filter(function(item) {
+      return package_name.indexOf(item) > -1;
+    });
+    return result;
   }
 
   public ConstructErrorMessage(list) {
@@ -1491,7 +1562,7 @@ footer a {
 }
 
 .platModalBody {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   width: 34em;
   background: white;
   display: flex;
@@ -1519,7 +1590,6 @@ footer a {
       margin-top: 14px;
     }
 
-
     label {
       h4 {
         font-size: 16px;
@@ -1538,7 +1608,8 @@ footer a {
       margin-bottom: 16px;
     }
 
-    input, textarea {
+    input,
+    textarea {
       width: 100%;
       font-size: 14px;
       border-color: #f4f4f4;
@@ -1575,21 +1646,23 @@ footer a {
     }
 
     &.file-chooser {
-      #uploadIconImage-color, #uploadIconImage-outline {
+      #uploadIconImage-color,
+      #uploadIconImage-outline {
         font-size: 14px;
         line-height: 16px;
         text-align: center;
         display: inline-block;
         padding: 8px 32px;
         color: #000000;
-        border: 1px solid #3C3D3E;
+        border: 1px solid #3c3d3e;
 
         &:focus {
           border-color: #9337d8;
         }
       }
 
-      #upload-file-input-color, #upload-file-input-outline {
+      #upload-file-input-color,
+      #upload-file-input-outline {
         display: none;
       }
 
