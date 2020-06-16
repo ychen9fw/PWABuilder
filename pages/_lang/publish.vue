@@ -892,13 +892,13 @@ export default class extends Vue {
       return result;
   }
 
-  public ConstructErrorMessage(list)
-  {
-    if(list.length === 1) {
+  public ConstructErrorMessage(list) {
+    if (list.length === 1) {
       return `Invalid package name. "${list[0]}" is a keyword.`;
-    else {
-    }
-      return `Invalid package name. "${list.slice(0, list.length - 1).join(", ")} and ${list[list.length - 1]}" are keywords`;
+    } else {
+      return `Invalid package name. "${list
+        .slice(0, list.length - 1)
+        .join(", ")} and ${list[list.length - 1]}" are keywords`;
     }
   }
 
