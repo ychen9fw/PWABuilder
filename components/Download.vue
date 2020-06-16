@@ -114,7 +114,11 @@ export default class extends Vue {
   }
 
   public async callTWA(goodIcon, maskIcon) {
-    const packageid = this.packageName || generatePackageId((this.manifest.short_name as string) || (this.manifest.name as string));
+    const packageid =
+      this.packageName ||
+      generatePackageId(
+        (this.manifest.short_name as string) || (this.manifest.name as string)
+      );
 
     let startURL = (this.manifest.start_url as string).replace(
       `https://${new URL(this.siteHref).hostname}`,
@@ -127,10 +131,12 @@ export default class extends Vue {
     }
 
     const packageGenArgs = JSON.stringify({
-      packageId: this.packageName ||  `com.${packageid
-        .split(" ")
-        .join("_")
-        .toLowerCase()}`,
+      packageId:
+        this.packageName ||
+        `com.${packageid
+          .split(" ")
+          .join("_")
+          .toLowerCase()}`,
       host: new URL(this.siteHref).hostname,
       name: this.manifest.short_name || this.manifest.name,
       themeColor: this.manifest.theme_color || this.manifest.background_color,
@@ -158,23 +164,25 @@ export default class extends Vue {
       }
     });
 
-    const packageGenUrl = new URL("/generateSignedApkZip", process.env.androidPackageGeneratorUrl);
+    const packageGenUrl = new URL(
+      "/generateSignedApkZip",
+      process.env.androidPackageGeneratorUrl
+    );
     const postBody = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: packageGenArgs
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: packageGenArgs
     };
     try {
       const response = await fetch(packageGenUrl.toString(), postBody);
-      if(response.status === 200) {
+      if (response.status === 200) {
         const data = await response.blob();
 
         let url = window.URL.createObjectURL(data);
         window.location.assign(url);
-      }
-      else {
+      } else {
         this.errorMessage = `Status code: ${response.status}, Error: ${response.statusText}`;
       }
     } catch (err) {
@@ -264,7 +272,6 @@ export default class extends Vue {
           }
         }
       }
-
 
       if (i === (this.manifest as any).icons.length) {
         resolve({ isValidUrl: false, message: `${goodIcon.src} is not found` });
@@ -366,7 +373,7 @@ Vue.prototype.$awa = function(config) {
 
 <style lang="scss" scoped>
 button:disabled {
-  background: rgba(60, 60, 60, .1);
+  background: rgba(60, 60, 60, 0.1);
   cursor: pointer;
 }
 
