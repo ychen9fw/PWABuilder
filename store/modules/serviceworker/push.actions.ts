@@ -21,7 +21,7 @@ export const actions: Actions<State, RootState> = {
         const response = await this.$axios.$post(`${apiUrl}/send`, {
           data: {
             publicKey: state.publicKey,
-            privateKey: "state.", // TODO
+            privateKey: state.privateKey,
             subject: state.email,
             notification: state.notification,
             // can pass, but not implemented in web service

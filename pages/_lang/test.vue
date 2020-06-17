@@ -22,6 +22,18 @@
         </div>
 
         <div class="testInputLabel">
+          <label for="privateKeyInput">Private Key:</label>
+
+          <input
+            type="text"
+            id="privateKeyInput"
+            name="privatekeyinput"
+            placeholder="vld88IhWi_NFrkB0s8jKNdl5Y-YyzF7oQKgNM6CIDpM"
+            v-model.trim="pushState.privateKey"
+          />
+        </div>
+
+        <div class="testInputLabel">
           <label for="publicKeyInput">Public Key:</label>
 
           <input
@@ -95,6 +107,7 @@ export default class extends Vue {
   public pushState: push.State = {
     email: null,
     publicKey: null,
+    privateKey: null,
     title: null,
     notification: null,
     iconUrl: null
