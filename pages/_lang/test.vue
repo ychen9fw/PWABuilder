@@ -17,7 +17,7 @@
             id="emailInput"
             name="emailInput"
             placeholder="janedoe@something.com"
-            :model="email"
+            v-model.trim="pushState.email"
           />
         </div>
 
@@ -29,7 +29,7 @@
             id="publicKeyInput"
             name="publickeyInput"
             placeholder="BMCRD0PP23_mhf7IWI1FLfw219PtjqV63XovTHqYdXgKLaLykCNJ8axD5hz4etTLI9bVfjMPIZUamPg3A5ZvXK4"
-            :model="publicKey"
+            v-model.trim="pushState.publicKey"
           />
         </div>
 
@@ -41,7 +41,7 @@
             id="titleInput"
             name="titleInput"
             placeholder="Test Notification title"
-            :model="title"
+            v-model.trim="pushState.title"
           />
         </div>
 
@@ -53,19 +53,25 @@
             id="bodyInput"
             name="bodyInput"
             placeholder="Test Notification body"
-            :model="body"
+            v-model.trim="pushState.notification"
           />
         </div>
 
         <div class="testInputLabel">
           <label for="iconInput">URL to notification icon:</label>
 
-          <input type="text" id="iconInput" name="iconInput" placeholder />
+          <input
+            type="text"
+            id="iconInput"
+            name="iconInput"
+            placeholder="https://www.siteurl.com/images/image.png"
+            v-model.trim="pushState.iconUrl"
+          />
         </div>
       </div>
 
       <div id="testActionBlock">
-        <button>Send Test Notification</button>
+        <button @click="sendTestNotification">Send Test Notification</button>
       </div>
     </div>
   </main>
@@ -73,9 +79,12 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { Action, namespace } from "vuex-class";
 import Component from "nuxt-class-component";
-
+import * as push from "~/store/modules/serviceworker/push";
 import HubHeader from "~/components/HubHeader.vue";
+
+const PushActions = namespace(push.name, Action);
 
 @Component({
   components: {
@@ -83,12 +92,20 @@ import HubHeader from "~/components/HubHeader.vue";
   }
 })
 export default class extends Vue {
-  data: {
-    email: "";
-    publicKey: "";
-    title: "";
-    body: "";
+  public pushState: push.State = {
+    email: null,
+    publicKey: null,
+    title: null,
+    notification: null,
+    iconUrl: null
   };
+
+  @PushActions sendNotification;
+
+  async sendTestNotification() {
+    console.log("clicked sendNotification");
+    this.sendNotification(this.pushState);
+  }
 }
 </script>
 
@@ -158,6 +175,7 @@ export default class extends Vue {
 #testActionBlock button {
   background: linear-gradient(90deg, #1fc2c8 0%, #9337d8 169.8%);
   border-radius: 20px;
+  border-width: 0;
   color: white;
   padding-top: 9px;
   padding-bottom: 10px;

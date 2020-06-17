@@ -11,7 +11,6 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "nuxt-class-component";
-
 import HubHeader from "~/components/HubHeader.vue";
 
 @Component({
