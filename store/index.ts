@@ -1,7 +1,6 @@
 import * as root from "./root";
 import * as generator from "./modules/generator";
 import * as serviceworker from "./modules/serviceworker";
-import * as push from "./modules/push";
 import * as publish from "./modules/publish";
 import * as i18n from "./modules/i18n";
 import * as windows from "./modules/windows";
@@ -18,7 +17,6 @@ export const modules = {
   [generator.name]: generator,
   [serviceworker.name]: serviceworker,
   [publish.name]: publish,
-  [push.name]: push,
   [i18n.name]: i18n,
   [windows.name]: windows,
 };
@@ -26,7 +24,6 @@ export const modules = {
 interface ModulesStates {
   generator: generator.State;
   serviceworker: serviceworker.State;
-  push: push.State;
   publish: publish.State;
   i18n: i18n.State;
   windows: windows.State;
