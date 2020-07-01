@@ -1,3 +1,5 @@
+export const pushUrl = `${process.env.apiUrl}/push`;
+
 export interface State {
   email: string | null;
   privateKey: string | null;
