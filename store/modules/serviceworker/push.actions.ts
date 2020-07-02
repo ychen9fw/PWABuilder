@@ -1,8 +1,5 @@
 import { ActionTree, ActionContext } from "vuex";
-import {
-  State,
-  PushApiResponseVapid,
-} from "~/store/modules/serviceworker/push";
+import { State } from "~/store/modules/serviceworker/push";
 import { RootState } from "store";
 
 const apiUrl = `${process.env.apiUrl}/push`;
