@@ -23,10 +23,13 @@ export const actions: Actions<State, RootState> = {
             publicKey: state.publicKey,
             privateKey: state.privateKey,
             subject: state.email,
-            notification: state.notification,
-            // can pass, but not implemented in web service
-            // title (notification title)
-            // icon url
+            notification: JSON.stringify({
+              notification: {
+                title: state.title,
+                body: state.notification,
+                // icon: "url"
+              },
+            }),
           },
         });
 
