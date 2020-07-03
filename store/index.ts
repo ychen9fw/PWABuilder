@@ -4,6 +4,7 @@ import * as serviceworker from "./modules/serviceworker";
 import * as publish from "./modules/publish";
 import * as i18n from "./modules/i18n";
 import * as windows from "./modules/windows";
+import * as push from "./modules/serviceworker/push";
 
 // More info about store: https://vuex.vuejs.org/en/core-concepts.html
 // Structure of the store:
@@ -16,6 +17,7 @@ import * as windows from "./modules/windows";
 export const modules = {
   [generator.name]: generator,
   [serviceworker.name]: serviceworker,
+  [push.name]: push,
   [publish.name]: publish,
   [i18n.name]: i18n,
   [windows.name]: windows,
