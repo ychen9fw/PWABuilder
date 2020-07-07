@@ -12,30 +12,30 @@
  * http://polymer.github.io/PATENTS.txt
  */const directives=new WeakMap,isDirective=e=>"function"==typeof e&&directives.has(e),isCEPolyfill=window.customElements!==void 0&&window.customElements.polyfillWrapFlushCallback!==void 0,removeNodes=(e,t,n=null)=>{for(;t!==n;){const r=t.nextSibling;e.removeChild(t),t=r}},noChange={},nothing={},marker=`{{lit-${(Math.random()+"").slice(2)}}}`,nodeMarker=`<!--${marker}-->`,markerRegex=new RegExp(`${marker}|${nodeMarker}`),boundAttributeSuffix="$lit$";/**
  * An updateable Template that tracks the location of dynamic parts.
- */class Template{constructor(e,t){this.parts=[],this.element=t;const r=[],a=[],i=document.createTreeWalker(t.content,133/* NodeFilter.SHOW_{ELEMENT|COMMENT|TEXT} */,null,!1);// Keeps track of the last index associated with a part. We try to delete
+ */class Template{constructor(e,t){this.parts=[],this.element=t;const r=[],a=[],o=document.createTreeWalker(t.content,133/* NodeFilter.SHOW_{ELEMENT|COMMENT|TEXT} */,null,!1);// Keeps track of the last index associated with a part. We try to delete
 // unnecessary nodes, but we never want to associate two different parts
 // to the same index. They must have a constant node between.
-let s=0,o=-1,d=0;for(const{strings:n,values:{length:p}}=e;d<p;){const e=i.nextNode();if(null===e){i.currentNode=a.pop();continue}if(o++,1===e.nodeType/* Node.ELEMENT_NODE */){if(e.hasAttributes()){const t=e.attributes,{length:r}=t;// Per
+let s=0,d=-1,p=0;for(const{strings:n,values:{length:i}}=e;p<i;){const e=o.nextNode();if(null===e){o.currentNode=a.pop();continue}if(d++,1===e.nodeType/* Node.ELEMENT_NODE */){if(e.hasAttributes()){const t=e.attributes,{length:r}=t;// Per
 // https://developer.mozilla.org/en-US/docs/Web/API/NamedNodeMap,
 // attributes are not guaranteed to be returned in document order.
 // In particular, Edge/IE can return them out of order, so we cannot
 // assume a correspondence between part index and attribute index.
 let a=0;for(let e=0;e<r;e++)endsWith(t[e].name,boundAttributeSuffix)&&a++;for(;0<a--;){// Get the template literal section leading up to the first
 // expression in this attribute
-const t=n[d],r=lastAttributeNameRegex.exec(t)[2],a=r.toLowerCase()+boundAttributeSuffix,i=e.getAttribute(a);// Find the attribute name
-e.removeAttribute(a);const s=i.split(markerRegex);this.parts.push({type:"attribute",index:o,name:r,strings:s}),d+=s.length-1}}"TEMPLATE"===e.tagName&&(a.push(e),i.currentNode=e.content)}else if(3===e.nodeType/* Node.TEXT_NODE */){const t=e.data;if(0<=t.indexOf(marker)){const n=e.parentNode,a=t.split(markerRegex),s=a.length-1;// Generate a new text node for each literal section
+const t=n[p],r=lastAttributeNameRegex.exec(t)[2],a=r.toLowerCase()+boundAttributeSuffix,o=e.getAttribute(a);// Find the attribute name
+e.removeAttribute(a);const s=o.split(markerRegex);this.parts.push({type:"attribute",index:d,name:r,strings:s}),p+=s.length-1}}"TEMPLATE"===e.tagName&&(a.push(e),o.currentNode=e.content)}else if(3===e.nodeType/* Node.TEXT_NODE */){const t=e.data;if(0<=t.indexOf(marker)){const n=e.parentNode,a=t.split(markerRegex),o=a.length-1;// Generate a new text node for each literal section
 // These nodes are also used as the markers for node parts
-for(let t=0;t<s;t++){let r,i=a[t];if(""===i)r=createMarker();else{const e=lastAttributeNameRegex.exec(i);null!==e&&endsWith(e[2],boundAttributeSuffix)&&(i=i.slice(0,e.index)+e[1]+e[2].slice(0,-boundAttributeSuffix.length)+e[3]),r=document.createTextNode(i)}n.insertBefore(r,e),this.parts.push({type:"node",index:++o})}// If there's no text, we must insert a comment to mark our place.
+for(let t=0;t<o;t++){let r,o=a[t];if(""===o)r=createMarker();else{const e=lastAttributeNameRegex.exec(o);null!==e&&endsWith(e[2],boundAttributeSuffix)&&(o=o.slice(0,e.index)+e[1]+e[2].slice(0,-boundAttributeSuffix.length)+e[3]),r=document.createTextNode(o)}n.insertBefore(r,e),this.parts.push({type:"node",index:++d})}// If there's no text, we must insert a comment to mark our place.
 // Else, we can trust it will stick around after cloning.
-""===a[s]?(n.insertBefore(createMarker(),e),r.push(e)):e.data=a[s],d+=s}}else if(8===e.nodeType/* Node.COMMENT_NODE */)if(e.data===marker){const t=e.parentNode;// Add a new marker node to be the startNode of the Part if any of
+""===a[o]?(n.insertBefore(createMarker(),e),r.push(e)):e.data=a[o],p+=o}}else if(8===e.nodeType/* Node.COMMENT_NODE */)if(e.data===marker){const t=e.parentNode;// Add a new marker node to be the startNode of the Part if any of
 // the following are true:
 //  * We don't have a previousSibling
 //  * The previousSibling is already the start of a previous part
-(null===e.previousSibling||o===s)&&(o++,t.insertBefore(createMarker(),e)),s=o,this.parts.push({type:"node",index:o}),null===e.nextSibling?e.data="":(r.push(e),o--),d++}else for(let t=-1;-1!==(t=e.data.indexOf(marker,t+1));)// Comment node has a binding marker inside, make an inactive part
+(null===e.previousSibling||d===s)&&(d++,t.insertBefore(createMarker(),e)),s=d,this.parts.push({type:"node",index:d}),null===e.nextSibling?e.data="":(r.push(e),d--),p++}else for(let t=-1;-1!==(t=e.data.indexOf(marker,t+1));)// Comment node has a binding marker inside, make an inactive part
 // The binding won't work, but subsequent bindings will
 // TODO (justinfagnani): consider whether it's even worth it to
 // make bindings in comments work
-this.parts.push({type:"node",index:-1}),d++}// Remove text binding nodes after the walk to not disturb the TreeWalker
+this.parts.push({type:"node",index:-1}),p++}// Remove text binding nodes after the walk to not disturb the TreeWalker
 for(const a of r)a.parentNode.removeChild(a)}}const endsWith=(e,t)=>{const n=e.length-t.length;return 0<=n&&e.slice(n)===t},isTemplatePartActive=e=>-1!==e.index,createMarker=()=>document.createComment(""),lastAttributeNameRegex=/([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;/**
  * @license
  * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -88,12 +88,12 @@ for(const a of r)a.parentNode.removeChild(a)}}const endsWith=(e,t)=>{const n=e.l
 // The Custom Elements v1 polyfill supports upgrade(), so the order when
 // polyfilled is the more ideal: Clone, Process, Adopt, Upgrade, Update,
 // Connect.
-const e=isCEPolyfill?this.template.element.content.cloneNode(!0):document.importNode(this.template.element.content,!0),t=[],n=this.template.parts,r=document.createTreeWalker(e,133/* NodeFilter.SHOW_{ELEMENT|COMMENT|TEXT} */,null,!1);let a,i=0,s=0,o=r.nextNode();// Loop through all the nodes and parts of a template
-for(;i<n.length;){if(a=n[i],!isTemplatePartActive(a)){this.__parts.push(void 0),i++;continue}// Progress the tree walker until we find our next part's node.
+const e=isCEPolyfill?this.template.element.content.cloneNode(!0):document.importNode(this.template.element.content,!0),t=[],n=this.template.parts,r=document.createTreeWalker(e,133/* NodeFilter.SHOW_{ELEMENT|COMMENT|TEXT} */,null,!1);let a,o=0,s=0,i=r.nextNode();// Loop through all the nodes and parts of a template
+for(;o<n.length;){if(a=n[o],!isTemplatePartActive(a)){this.__parts.push(void 0),o++;continue}// Progress the tree walker until we find our next part's node.
 // Note that multiple parts may share the same node (attribute parts
 // on a single element), so this loop may not run at all.
-for(;s<a.index;)s++,"TEMPLATE"===o.nodeName&&(t.push(o),r.currentNode=o.content),null===(o=r.nextNode())&&(r.currentNode=t.pop(),o=r.nextNode());// We've arrived at our part's node.
-if("node"===a.type){const e=this.processor.handleTextExpression(this.options);e.insertAfterNode(o.previousSibling),this.__parts.push(e)}else this.__parts.push(...this.processor.handleAttributeExpressions(o,a.name,a.strings,this.options));i++}return isCEPolyfill&&(document.adoptNode(e),customElements.upgrade(e)),e}}/**
+for(;s<a.index;)s++,"TEMPLATE"===i.nodeName&&(t.push(i),r.currentNode=i.content),null===(i=r.nextNode())&&(r.currentNode=t.pop(),i=r.nextNode());// We've arrived at our part's node.
+if("node"===a.type){const e=this.processor.handleTextExpression(this.options);e.insertAfterNode(i.previousSibling),this.__parts.push(e)}else this.__parts.push(...this.processor.handleAttributeExpressions(i,a.name,a.strings,this.options));o++}return isCEPolyfill&&(document.adoptNode(e),customElements.upgrade(e)),e}}/**
  * @license
  * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
  * This code may only be used under the BSD style license found at
@@ -130,7 +130,7 @@ if("node"===a.type){const e=this.processor.handleTextExpression(this.options);e.
 n=(-1<a||n)&&-1===e.indexOf("-->",a+1);// Check to see if we have an attribute-like sequence preceeding the
 // expression. This can match "name=value" like structures in text,
 // comments, and attribute values, so there can be false-positives.
-const i=lastAttributeNameRegex.exec(e);t+=null===i?e+(n?commentMarker:nodeMarker):e.substr(0,i.index)+i[1]+i[2]+boundAttributeSuffix+i[3]+marker}return t+=this.strings[e],t}getTemplateElement(){const e=document.createElement("template");return e.innerHTML=this.getHTML(),e}}/**
+const o=lastAttributeNameRegex.exec(e);t+=null===o?e+(n?commentMarker:nodeMarker):e.substr(0,o.index)+o[1]+o[2]+boundAttributeSuffix+o[3]+marker}return t+=this.strings[e],t}getTemplateElement(){const e=document.createElement("template");return e.innerHTML=this.getHTML(),e}}/**
  * @license
  * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
  * This code may only be used under the BSD style license found at
@@ -230,7 +230,7 @@ const getOptions=e=>e&&(eventOptionsSupported?{capture:e.capture,passive:e.passi
      * @param name  The attribute name
      * @param strings The string literals. There are always at least two strings,
      *   event for fully-controlled bindings with a single expression.
-     */handleAttributeExpressions(e,t,n,r){const a=t[0];if("."===a){const r=new PropertyCommitter(e,t.slice(1),n);return r.parts}if("@"===a)return[new EventPart(e,t.slice(1),r.eventContext)];if("?"===a)return[new BooleanAttributePart(e,t.slice(1),n)];const i=new AttributeCommitter(e,t,n);return i.parts}/**
+     */handleAttributeExpressions(e,t,n,r){const a=t[0];if("."===a){const r=new PropertyCommitter(e,t.slice(1),n);return r.parts}if("@"===a)return[new EventPart(e,t.slice(1),r.eventContext)];if("?"===a)return[new BooleanAttributePart(e,t.slice(1),n)];const o=new AttributeCommitter(e,t,n);return o.parts}/**
      * Create parts for a text-position binding.
      * @param templateFactory
      */handleTextExpression(e){return new NodePart(e)}}const defaultTemplateProcessor=new DefaultTemplateProcessor;/**
@@ -293,18 +293,18 @@ return n=t.keyString.get(r),void 0===n&&(n=new Template(e,e.getTemplateElement()
  *         div
  * div <-- stop removing since previous sibling is the removing node (div#1,
  * removed 4 nodes)
- */function removeNodesFromTemplate(e,t){const{element:{content:r},parts:n}=e,a=document.createTreeWalker(r,walkerNodeFilter,null,!1);let i=nextActiveIndexInTemplateParts(n),s=n[i],o=-1,d=0;const p=[];for(let r=null;a.nextNode();){o++;const e=a.currentNode;// End removal if stepped past the removing node
-for(e.previousSibling===r&&(r=null),t.has(e)&&(p.push(e),null===r&&(r=e)),null!==r&&d++;s!==void 0&&s.index===o;)// If part is in a removed node deactivate it by setting index to -1 or
+ */function removeNodesFromTemplate(e,t){const{element:{content:r},parts:n}=e,a=document.createTreeWalker(r,walkerNodeFilter,null,!1);let o=nextActiveIndexInTemplateParts(n),s=n[o],i=-1,d=0;const p=[];for(let r=null;a.nextNode();){i++;const e=a.currentNode;// End removal if stepped past the removing node
+for(e.previousSibling===r&&(r=null),t.has(e)&&(p.push(e),null===r&&(r=e)),null!==r&&d++;s!==void 0&&s.index===i;)// If part is in a removed node deactivate it by setting index to -1 or
 // adjust the index as needed.
 // go to the next active part.
-s.index=null===r?s.index-d:-1,i=nextActiveIndexInTemplateParts(n,i),s=n[i]}p.forEach(e=>e.parentNode.removeChild(e))}const countNodes=e=>{let t=11===e.nodeType/* Node.DOCUMENT_FRAGMENT_NODE */?0:1;for(const n=document.createTreeWalker(e,walkerNodeFilter,null,!1);n.nextNode();)t++;return t},nextActiveIndexInTemplateParts=(e,t=-1)=>{for(let n=t+1;n<e.length;n++){const t=e[n];if(isTemplatePartActive(t))return n}return-1};/**
+s.index=null===r?s.index-d:-1,o=nextActiveIndexInTemplateParts(n,o),s=n[o]}p.forEach(e=>e.parentNode.removeChild(e))}const countNodes=e=>{let t=11===e.nodeType/* Node.DOCUMENT_FRAGMENT_NODE */?0:1;for(const n=document.createTreeWalker(e,walkerNodeFilter,null,!1);n.nextNode();)t++;return t},nextActiveIndexInTemplateParts=(e,t=-1)=>{for(let n=t+1;n<e.length;n++){const t=e[n];if(isTemplatePartActive(t))return n}return-1};/**
  * Inserts the given node into the Template, optionally before the given
  * refNode. In addition to inserting the node into the Template, the Template
  * part indices are updated to match the mutated Template DOM.
  */function insertNodeIntoTemplate(e,t,n=null){const{element:{content:a},parts:r}=e;// If there's no refNode, then put node at end of template.
 // No part indices need to be shifted in this case.
-if(null===n||void 0===n)return void a.appendChild(t);const i=document.createTreeWalker(a,walkerNodeFilter,null,!1);let s=nextActiveIndexInTemplateParts(r),o=0,d=-1;for(;i.nextNode();){d++;const e=i.currentNode;for(e===n&&(o=countNodes(t),n.parentNode.insertBefore(t,n));-1!==s&&r[s].index===d;){// If we've inserted the node, simply adjust all subsequent parts
-if(0<o){for(;-1!==s;)r[s].index+=o,s=nextActiveIndexInTemplateParts(r,s);return}s=nextActiveIndexInTemplateParts(r,s)}}}/**
+if(null===n||void 0===n)return void a.appendChild(t);const o=document.createTreeWalker(a,walkerNodeFilter,null,!1);let s=nextActiveIndexInTemplateParts(r),i=0,d=-1;for(;o.nextNode();){d++;const e=o.currentNode;for(e===n&&(i=countNodes(t),n.parentNode.insertBefore(t,n));-1!==s&&r[s].index===d;){// If we've inserted the node, simply adjust all subsequent parts
+if(0<i){for(;-1!==s;)r[s].index+=i,s=nextActiveIndexInTemplateParts(r,s);return}s=nextActiveIndexInTemplateParts(r,s)}}}/**
  * @license
  * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
  * This code may only be used under the BSD style license found at
@@ -320,23 +320,23 @@ if(0<o){for(;-1!==s;)r[s].index+=o,s=nextActiveIndexInTemplateParts(r,s);return}
 const getTemplateCacheKey=(e,t)=>`${e}--${t}`;let compatibleShadyCSSVersion=!0;"undefined"==typeof window.ShadyCSS?compatibleShadyCSSVersion=!1:"undefined"==typeof window.ShadyCSS.prepareTemplateDom&&(console.warn("Incompatible ShadyCSS version detected. Please update to at least @webcomponents/webcomponentsjs@2.0.2 and @webcomponents/shadycss@1.3.1."),compatibleShadyCSSVersion=!1);/**
  * Template factory which scopes template DOM using ShadyCSS.
  * @param scopeName {string}
- */const shadyTemplateFactory=e=>t=>{const n=getTemplateCacheKey(t.type,e);let r=templateCaches.get(n);void 0===r&&(r={stringsArray:new WeakMap,keyString:new Map},templateCaches.set(n,r));let a=r.stringsArray.get(t.strings);if(void 0!==a)return a;const i=t.strings.join(marker);if(a=r.keyString.get(i),void 0===a){const n=t.getTemplateElement();compatibleShadyCSSVersion&&window.ShadyCSS.prepareTemplateDom(n,e),a=new Template(t,n),r.keyString.set(i,a)}return r.stringsArray.set(t.strings,a),a},TEMPLATE_TYPES=["html","svg"],removeStylesFromLitTemplates=e=>{TEMPLATE_TYPES.forEach(t=>{const n=templateCaches.get(getTemplateCacheKey(t,e));n!==void 0&&n.keyString.forEach(e=>{const{element:{content:t}}=e,n=new Set;// IE 11 doesn't support the iterable param Set constructor
+ */const shadyTemplateFactory=e=>t=>{const n=getTemplateCacheKey(t.type,e);let r=templateCaches.get(n);void 0===r&&(r={stringsArray:new WeakMap,keyString:new Map},templateCaches.set(n,r));let a=r.stringsArray.get(t.strings);if(void 0!==a)return a;const o=t.strings.join(marker);if(a=r.keyString.get(o),void 0===a){const n=t.getTemplateElement();compatibleShadyCSSVersion&&window.ShadyCSS.prepareTemplateDom(n,e),a=new Template(t,n),r.keyString.set(o,a)}return r.stringsArray.set(t.strings,a),a},TEMPLATE_TYPES=["html","svg"],removeStylesFromLitTemplates=e=>{TEMPLATE_TYPES.forEach(t=>{const n=templateCaches.get(getTemplateCacheKey(t,e));n!==void 0&&n.keyString.forEach(e=>{const{element:{content:t}}=e,n=new Set;// IE 11 doesn't support the iterable param Set constructor
 Array.from(t.querySelectorAll("style")).forEach(e=>{n.add(e)}),removeNodesFromTemplate(e,n)})})},shadyRenderSet=new Set,prepareTemplateStyles=(e,t,n)=>{shadyRenderSet.add(e);// If `renderedDOM` is stamped from a Template, then we need to edit that
 // Template's underlying template element. Otherwise, we create one here
 // to give to ShadyCSS, which still requires one while scoping.
-const r=!n?document.createElement("template"):n.element,a=t.querySelectorAll("style"),{length:s}=a;// Move styles out of rendered DOM and store.
+const r=!n?document.createElement("template"):n.element,a=t.querySelectorAll("style"),{length:o}=a;// Move styles out of rendered DOM and store.
 // If there are no styles, skip unnecessary work
-if(0===s)return void window.ShadyCSS.prepareTemplateStyles(r,e);const o=document.createElement("style");// Collect styles into a single style. This helps us make sure ShadyCSS
+if(0===o)return void window.ShadyCSS.prepareTemplateStyles(r,e);const s=document.createElement("style");// Collect styles into a single style. This helps us make sure ShadyCSS
 // manipulations will not prevent us from being able to fix up template
 // part indices.
 // NOTE: collecting styles is inefficient for browsers but ShadyCSS
 // currently does this anyway. When it does not, this should be changed.
-for(let r=0;r<s;r++){const e=a[r];e.parentNode.removeChild(e),o.textContent+=e.textContent}// Remove styles from nested templates in this scope.
+for(let r=0;r<o;r++){const e=a[r];e.parentNode.removeChild(e),s.textContent+=e.textContent}// Remove styles from nested templates in this scope.
 removeStylesFromLitTemplates(e);// And then put the condensed style into the "root" template passed in as
 // `template`.
-const d=r.content;!n?d.insertBefore(o,d.firstChild):insertNodeIntoTemplate(n,o,d.firstChild),window.ShadyCSS.prepareTemplateStyles(r,e);const p=d.querySelector("style");if(window.ShadyCSS.nativeShadow&&null!==p)// When in native Shadow DOM, ensure the style created by ShadyCSS is
+const i=r.content;!n?i.insertBefore(s,i.firstChild):insertNodeIntoTemplate(n,s,i.firstChild),window.ShadyCSS.prepareTemplateStyles(r,e);const d=i.querySelector("style");if(window.ShadyCSS.nativeShadow&&null!==d)// When in native Shadow DOM, ensure the style created by ShadyCSS is
 // included in initially rendered output (`renderedDOM`).
-t.insertBefore(p.cloneNode(!0),t.firstChild);else if(!!n){d.insertBefore(o,d.firstChild);const e=new Set;e.add(o),removeNodesFromTemplate(n,e)}},render$1=(e,t,n)=>{if(!n||"object"!=typeof n||!n.scopeName)throw new Error("The `scopeName` option is required.");const r=n.scopeName,a=parts.has(t),i=compatibleShadyCSSVersion&&11===t.nodeType/* Node.DOCUMENT_FRAGMENT_NODE */&&!!t.host,s=i&&!shadyRenderSet.has(r),o=s?document.createDocumentFragment():t;// When performing first scope render,
+t.insertBefore(d.cloneNode(!0),t.firstChild);else if(!!n){i.insertBefore(s,i.firstChild);const e=new Set;e.add(s),removeNodesFromTemplate(n,e)}},render$1=(e,t,n)=>{if(!n||"object"!=typeof n||!n.scopeName)throw new Error("The `scopeName` option is required.");const r=n.scopeName,a=parts.has(t),o=compatibleShadyCSSVersion&&11===t.nodeType/* Node.DOCUMENT_FRAGMENT_NODE */&&!!t.host,s=o&&!shadyRenderSet.has(r),i=s?document.createDocumentFragment():t;// When performing first scope render,
 // (1) We've rendered into a fragment so that there's a chance to
 // `prepareTemplateStyles` before sub-elements hit the DOM
 // (which might cause them to render based on a common pattern of
@@ -345,18 +345,18 @@ t.insertBefore(p.cloneNode(!0),t.firstChild);else if(!!n){d.insertBefore(o,d.fir
 // (3) Render the fragment into the container and make sure the
 // container knows its `part` is the one we just rendered. This ensures
 // DOM will be re-used on subsequent renders.
-if(render(e,o,Object.assign({templateFactory:shadyTemplateFactory(r)},n)),s){const e=parts.get(o);parts.delete(o);// ShadyCSS might have style sheets (e.g. from `prepareAdoptedCssText`)
+if(render(e,i,Object.assign({templateFactory:shadyTemplateFactory(r)},n)),s){const e=parts.get(i);parts.delete(i);// ShadyCSS might have style sheets (e.g. from `prepareAdoptedCssText`)
 // that should apply to `renderContainer` even if the rendered value is
 // not a TemplateInstance. However, it will only insert scoped styles
 // into the document if `prepareTemplateStyles` has already been called
 // for the given scope name.
-const n=e.value instanceof TemplateInstance?e.value.template:void 0;prepareTemplateStyles(r,o,n),removeNodes(t,t.firstChild),t.appendChild(o),parts.set(t,e)}// After elements have hit the DOM, update styling if this is the
+const n=e.value instanceof TemplateInstance?e.value.template:void 0;prepareTemplateStyles(r,i,n),removeNodes(t,t.firstChild),t.appendChild(i),parts.set(t,e)}// After elements have hit the DOM, update styling if this is the
 // initial render to this container.
 // This is needed whenever dynamic changes are made so it would be
 // safest to do every render; however, this would regress performance
 // so we leave it up to the user to call `ShadyCSS.styleElement`
 // for dynamic changes.
-!a&&i&&window.ShadyCSS.styleElement(t.host)};/**
+!a&&o&&window.ShadyCSS.styleElement(t.host)};/**
  * @license
  * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
  * This code may only be used under the BSD style license found at
@@ -691,465 +691,152 @@ r.forEach(e=>t.unshift(e))}else e&&t.push(e);return t}/**
  *
  * Note this property name is a string to prevent breaking Closure JS Compiler
  * optimizations. See updating-element.ts for more information.
- */LitElement.finalized=!0,LitElement.render=render$1;const NotificationOptions={title:"PWABuilder Test Notification",body:"This is the mock body text",icon:"https://pwabuilder.com/Images/assets/newIcons/icon_60.png"};var framework;(function(e){e.vanilla="vanilla",e.react="react",e.vue="vue",e.angular="angular"})(framework||(framework={}));function urlBase64ToUint8Array(e){for(var t="=".repeat((4-e.length%4)%4),n=(e+t).replace(/\-/g,"+").replace(/_/g,"/"),r=window.atob(n),a=new Uint8Array(r.length),s=0;s<r.length;++s)a[s]=r.charCodeAt(s);return a}var __decorate=function(e,t,n,a){var s,o=arguments.length,p=3>o?t:null===a?a=Object.getOwnPropertyDescriptor(t,n):a;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)p=Reflect.decorate(e,t,n,a);else for(var l=e.length-1;0<=l;l--)(s=e[l])&&(p=(3>o?s(p):3<o?s(t,n,p):s(t,n))||p);return 3<o&&p&&Object.defineProperty(t,n,p),p};let pwabpush=class extends LitElement{constructor(){super(),this.userEmail="",this.notificationTitle="",this.notificationBody="",this.notificationIcon="",this.url="https://pwabuilder-api-prod.azurewebsites.net/push",this.swCode=framework.react}static get styles(){return css`
-      :host {
-        font-family: sans-serif;
+ */LitElement.finalized=!0,LitElement.render=render$1;var framework;(function(e){e.vanilla="vanilla",e.react="react",e.vue="vue",e.angular="angular"})(framework||(framework={}));const vanillaCode={title:"Add this code to your service worker",code:`// This code is used to register your user to the notification service.
+async function subscribeUser() {
+  try {
+    const vapidPublicKey = ""; // get public key here
+    var registration = await navigator.serviceWorker.register("pwabuilder-sw.js", {
+      scope: "./"
+    });
 
-        --font-color: #3c3c3c;
+    var subscription = await registration.pushManager.getSubscription();
+
+    if (subscription) {
+      return;
+    }
+
+    const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+    subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: convertedVapidKey
+    });
+
+    const response = await fetch("https://pwabuilder-api-prod.azurewebsites.net/push/subscribe", {
+      method: 'post',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        subscription: JSON.stringify(subscription),
+        publicKey: vapidPublicKey
+      })
+    });
+
+    // handle response after registration here
+
+  } catch(e) {
+    // handle error here
+  }
+}
+
+// Utility function for browser interoperability
+function urlBase64ToUint8Array(base64String) {
+  var padding = '='.repeat((4 - base64String.length % 4) % 4);
+  var base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+
+  var rawData = window.atob(base64);
+  var outputArray = new Uint8Array(rawData.length);
+
+  for (var i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+// how to trigger the permissions prompt.
+subscribeUser();
+`},angularCommandLine={title:"Make sure you add these modules to the angular app",code:`# add this angular module
+@angular/service-worker
+
+# run these commands
+ng add @angular/pwa --project *project name*
+ng generate web-worker <path like ./src>
+`},angularCode={title:"Make these modifications to your AppComponent",code:`export class AppComponent {
+  ...
+  readonly VAPID_PUBLIC_KEY = ""; // vapid public key
+
+  constructor(
+    ...
+    private swPush: SwPush,
+    ...
+  ) {}
+
+  async subscribe() {
+    try {
+      const sub = await this.swPush.requestSubscription({
+        serverPublicKey: this.VAPID_PUBLIC_KEY
+      });
+
+      await this.subscribeUser(sub);
+    } catch (e) {
+      // handle exceptions here
+    }
+  }
+
+  subscribeUser(subscriptionPayload) {
+    const response = await fetch("https://pwabuilder-api-prod.azurewebsites.net/push/subscribe", {
+      method: 'post',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        subscription: JSON.stringify(subscription),
+        publicKey: vapidPublicKey
+      })
+    });
+
+    // handle response after registration here
+  }
+
+  function urlBase64ToUint8Array(base64String) {
+    var padding = '='.repeat((4 - base64String.length % 4) % 4);
+    var base64 = (base64String + padding)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/');
+
+    var rawData = window.atob(base64);
+    var outputArray = new Uint8Array(rawData.length);
+
+    for (var i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+}`},landingScript={title:"",code:`// Add this below content to your HTML page inside a <script type="module"></script> tag, or add the js file to your page at the very top to register service worker
+import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+
+const el = document.createElement('pwa-update');
+document.body.appendChild(el);
+`},sendNotificationScript={title:"Use this code to send notifications to the user",code:`async sendNotification() {
+  try {
+    const response: PwabNotificationResponse = await fetch(
+      "https://pwabuilder-api-prod.azurewebsites.net/push/send",
+      {
+        method: "POST",
+        cache: "no-cache",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          publicKey: "",
+          privateKey: "",
+          subject: "registeredEmail@example.com",
+          // double nesting is required! this is a bug
+          notification: JSON.stringify({
+            notification: {
+              title: "title text",
+              body: "body text",
+              icon: "url.com/images/icon",
+            },
+          }),
+        }),
       }
-
-      #wrapper {
-        display: flex;
-        justify-content: space-between;
-      }
-
-      #instructionsList {
-        margin-bottom: 4em;
-      }
-
-      #leftColumn h3 {
-        font-style: normal;
-        font-weight: 600;
-        font-size: 30px;
-        line-height: 45px;
-        letter-spacing: -0.02em;
-        color: var(--font-color);
-      }
-
-      #leftColumn p {
-        font-style: normal;
-        font-size: 14px;
-        line-height: 21px;
-      }
-
-      #leftColumn p#introText {
-        margin-left: initial;
-      }
-
-      #leftColumn .formWrapper {
-        padding-left: 7em;
-      }
-
-      #leftColumn {
-        flex: 1;
-      }
-
-      #leftColumn .step {
-        max-height: 5em;
-        overflow: hidden;
-        transition: max-height 0.25s ease-in-out;
-      }
-
-      #leftColumn .step.open {
-        max-height: 100vh;
-      }
-
-      #leftColumn #stepTwo.step.open {
-        max-height: 160vh;
-      }
-
-      #rightColumn {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        flex: 1;
-        margin-top: 3em;
-        height: 39em;
-      }
-
-      #rightColumn img {
-        width: 400px;
-      }
-
-      .stepTextWrapper {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-      }
-
-      .stepTextWrapper img {
-        height: 60px;
-        width: 60px;
-        object-fit: contain;
-        margin-right: 8px;
-      }
-
-      .stepText {
-        font-weight: 600;
-        font-size: 24px;
-        line-height: 36px;
-        color: #3c3c3c;
-      }
-
-      h4 {
-        font-weight: normal;
-        font-size: 24px;
-        color: grey;
-      }
-
-      #emailButton:disabled {
-        border-color: rgb(170, 170, 170);
-      }
-
-      #emailInputWrapper {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 40px;
-      }
-
-      #emailInputWrapper button {
-        border: 1px solid #3c3c3c;
-        border-radius: 16px;
-        font-style: normal;
-        font-weight: bold;
-        font-size: 12px;
-        line-height: 28px;
-        padding-left: 14px;
-        padding-right: 14px;
-        cursor: pointer;
-      }
-
-      #emailInputLabel {
-        display: flex;
-        flex-direction: column;
-      }
-
-      #emailInputLabel label {
-        font-weight: bold;
-        font-size: 14px;
-        line-height: 24px;
-      }
-
-      #emailInput {
-        width: 26em;
-      }
-
-      input[type="email"] {
-        border: none;
-        border-bottom: 1px solid rgba(60, 60, 60, 0.3);
-        color: #3c3c3c;
-
-        background: transparent;
-        padding-bottom: 16px;
-        width: 26em;
-
-        outline: none;
-      }
-
-      #projectSelect {
-        border: none;
-        border-bottom: 1px solid rgba(60, 60, 60, 0.3);
-        width: 20em;
-        padding-bottom: 7px;
-        padding-top: 8px;
-        font-weight: bold;
-        background: transparent;
-      }
-
-      .actionsBlock {
-        background: #c4c4c463;
-        border-radius: 6px;
-        padding-left: 18px;
-        padding-right: 18px;
-        padding-top: 15px;
-        padding-bottom: 15px;
-        margin-top: 44px;
-      }
-
-      .actionsBlock h5 {
-        margin: 0;
-        font-style: normal;
-        font-weight: bold;
-        font-size: 16px;
-        line-height: 24px;
-      }
-
-      .actionButtons {
-        display: flex;
-      }
-
-      .actionButtons .primaryAction {
-        background: linear-gradient(90deg, #1fc2c8 0%, #9337d8 169.8%);
-        border-radius: 20px;
-        color: white;
-        border: none;
-
-        font-style: normal;
-        font-weight: 500;
-        font-size: 14px;
-        line-height: 21px;
-
-        padding-left: 18px;
-        padding-right: 18px;
-        padding-top: 6px;
-        padding-bottom: 6px;
-        cursor: pointer;
-
-        margin-top: 16px;
-      }
-
-      #stepThreeActions {
-        margin-top: initial;
-      }
-
-      #stepThreeActions input {
-        border: none;
-        border-bottom: solid grey 1px;
-        background: transparent;
-        font-weight: normal;
-        font-size: 14px;
-        line-height: 24px;
-        margin-bottom: 30px;
-      }
-
-      #stepThree #sendButton {
-        background: linear-gradient(90deg, #1fc2c8 0%, #9337d8 169.8%);
-        border-radius: 20px;
-        border: none;
-        color: white;
-        font-size: 14px;
-        line-height: 21px;
-        padding-top: 10px;
-        padding-bottom: 9px;
-        padding-left: 18px;
-        padding-right: 18px;
-        margin-top: 30px;
-      }
-
-      @media (max-width: 905px) {
-        #wrapper {
-          flex-direction: column;
-        }
-
-        #leftColumn .formWrapper {
-          padding-left: 0em;
-        }
-
-        #emailInput {
-          width: 20em;
-        }
-
-        #rightColumn {
-          display: none;
-        }
-      }
-
-      @media (max-width: 430px) {
-        #emailInput {
-          width: 17em;
-        }
-      }
-    `}openStep(e){const t=this.shadowRoot.querySelector(`#${e}`),n=this.shadowRoot.querySelectorAll(".open");if(console.log(n),n)for(let e=0;e<n.length;e++)console.log(n[e]),n[e].classList.remove("open");t.classList.toggle("open")}selectProject(e){const t=e.target.value;t===framework.angular?this.swCode=framework.angular:t===framework.react?this.swCode=framework.react:t===framework.vue?this.swCode=framework.vue:t===framework.vanilla?this.swCode=framework.vanilla:void 0}addEmail(e){const t=this.shadowRoot.getElementById("emailInput");this.userEmail=t.value,this.requestUpdate()}async clickGenerateAndRegisterButton(){try{this.vapidKeys=await this.createVapidKeys(),await this.registerKeys(),this.emailVapidKeys()}catch(t){console.log("something failed, please try again")}}async createVapidKeys(){const{keys:e}=await fetch(this.url+"/create",{method:"GET",cache:"no-cache",headers:{"content-type":"application/json"}}).then(e=>e.json());return Object.assign({},e)}async registerKeys(){const e=await fetch(this.url+"/register",{method:"POST",cache:"no-cache",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign({userEmail:this.userEmail},this.vapidKeys))}).then(e=>e.json());return e}async subscribe(){var e=await navigator.serviceWorker.register("pwabuilder-sw.js",{scope:"./"}),t=await e.pushManager.getSubscription();if(!t){const n=urlBase64ToUint8Array(this.vapidKeys.publicKey);t=await e.pushManager.subscribe({userVisibleOnly:!0,applicationServerKey:n});await fetch(this.url+"/subscribe",{method:"POST",cache:"no-cache",headers:{"content-type":"application/json"},body:JSON.stringify({subscription:JSON.stringify(t),publicKey:this.vapidKeys.publicKey})}).then(e=>e.json())}}async unsubscribe(){var e=await navigator.serviceWorker.register("pwabuilder-sw.js",{scope:"./"}),t=await e.pushManager.getSubscription();if(t){await t.unsubscribe();await fetch(this.url+"/unsubscribe",{method:"post",headers:{"Content-type":"application/json"},body:JSON.stringify({subscription:JSON.stringify(t),publicKey:this.vapidKeys.publicKey})}).then(e=>e.json())}}emailVapidKeys(){const e=`Here is the VAPID key you generated for your PWA app at https://www.pwabuilder.com\nprivateKey:${this.vapidKeys.privateKey}\npublicKey:${this.vapidKeys.publicKey}\nsubject:${this.userEmail}\n`;window.open(encodeURI(`mailto:${this.userEmail}?subject=${"PWA Builder VAPID Key Info"}&body=${e}`))}async sendNotification(){try{await fetch(this.url+"/send",{method:"POST",cache:"no-cache",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign(Object.assign({},this.vapidKeys),{subject:this.userEmail,notification:JSON.stringify({notification:Object.assign(Object.assign({},NotificationOptions),{title:""===this.notificationTitle?NotificationOptions.title:this.notificationTitle,body:""===this.notificationBody?NotificationOptions.body:this.notificationBody,icon:""===this.notificationIcon?NotificationOptions.icon:this.notificationIcon})})}))}).then(e=>e.json())}catch(t){console.log("failed to send notification")}}validUserEmail(){return this.userEmail&&""!==this.userEmail&&this.userEmail.match(/^\S+@\S+\.\S+$/)&&1==this.userEmail.match(/^\S+@\S+\.\S+$/).length}render(){return html`
-      <div id="wrapper">
-        <section id="leftColumn">
-          <h3>Web Push Notifications</h3>
-
-          <p id="introText">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam
-            faucibus luctus libero sit amet sodales. Vivamus dui ex, luctus et
-            condimentum ut, aliquam in nibh. Sed eleifend accumsan ante, sed
-            elementum urna porttitor gravida. Quisque lobortis ut arcu ac
-            condimentum. Proin sit amet viverra ex. Sed felis metus, malesuada
-            sit amet dolor ac, tempus posuere felis. Praesent faucibus pretium
-            aliquam. Suspendisse a mauris eros. Aenean malesuada tortor lectus,
-            imperdiet mattis sem venenatis sed. Vestibulum augue tellus, ornare
-            sit amet sapien ut, placerat vehicula dolor. Mauris at tempus purus,
-            a aliquam sapien. Suspendisse et tempus lectus. Quisque sit amet
-            euismod tellus. Donec a ultrices diam. Ut tempor erat nec lacus
-            tempus, eget iaculis orci suscipit. Nullam tristique quis dolor
-            semper sodales.
-          </p>
-
-          <div id="instructionsList">
-            <div class="step open" id="stepOne">
-              <div
-                class="stepTextWrapper"
-                @click="${()=>this.openStep("stepOne")}"
-              >
-                <img src="/Images/server.png" />
-
-                <h4><span class="stepText">Step 1:</span> Setup server Side</h4>
-              </div>
-
-              <div class="formWrapper">
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam
-                  faucibus luctus libero sit amet sodales. Vivamus dui ex,
-                  luctus et condimentum ut, aliquam in nibh. Sed eleifend
-                  accumsan ante, sed elementum urna porttitor gravida.
-                </p>
-
-                <div id="emailInputWrapper">
-                  <div id="emailInputLabel">
-                    <label for="emailInput">
-                      Email:
-                    </label>
-
-                    <input
-                      type="email"
-                      id="emailInput"
-                      name="emailInput"
-                      placeholder="janedoe@something.com"
-                      .value=${this.userEmail}
-                    />
-                  </div>
-
-                  <button
-                    id="emailButton"
-                    @click=${this.addEmail}
-                    ?disabled=${this.validUserEmail()}
-                  >
-                    ${this.validUserEmail()?"Email added":"Add Email"}
-                  </button>
-                </div>
-
-                <div class="actionsBlock">
-                  <h5>Generate Vapid Keys</h5>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  </p>
-
-                  <h5>Registration</h5>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  </p>
-
-                  <h5>Email Confirmation</h5>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  </p>
-
-                  <div class="actionButtons">
-                    <button
-                      class="primaryAction"
-                      @click=${this.clickGenerateAndRegisterButton}
-                    >
-                      Generate and Register VAPID Keys
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="step" id="stepTwo">
-              <div
-                @click="${()=>this.openStep("stepTwo")}"
-                class="stepTextWrapper"
-              >
-                <img src="/Images/client.png" />
-
-                <h4><span class="stepText">Step 2:</span> Setup client Side</h4>
-              </div>
-
-              <div class="formWrapper">
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam
-                  faucibus luctus libero sit amet sodales. Vivamus dui ex,
-                  luctus et condimentum ut, aliquam in nibh. Sed eleifend
-                  accumsan ante, sed elementum urna porttitor gravida.
-                </p>
-
-                <p>Please select a project type:</p>
-
-                <div id="emailInputWrapper">
-                  <div id="emailInputLabel">
-                    <label for="projectSelect">
-                      Project Type:
-                    </label>
-
-                    <select
-                      @change=${this.selectProject}
-                      id="projectSelect"
-                      name="projectSelect"
-                    >
-                      <option value="${framework.react}">React</option>
-                      <option value=${framework.vue}>Vue</option>
-                      <option value="${framework.angular}">Angular</option>
-                      <option value="${framework.vanilla}">Vanilla JS</option>
-                    </select>
-                  </div>
-                </div>
-
-                <!-- Testing Buttons -->
-                <!-- <button @click=${this.subscribe}>Subscribe</button> -->
-                <!-- <button @click=${this.unsubscribe}>Unsubscribe</button> -->
-
-                <div class="actionsBlock">
-                  <pwab-samples code="${this.swCode}" show-copy> </pwab-samples>
-                </div>
-              </div>
-            </div>
-
-            <div class="step" id="stepThree">
-              <div
-                @click="${()=>this.openStep("stepThree")}"
-                class="stepTextWrapper"
-              >
-                <img src="/Images/test.png" />
-
-                <h4>
-                  <span class="stepText">Step 3:</span> Send test notification
-                </h4>
-              </div>
-
-              <div class="formWrapper">
-                <div id="stepThreeActions" class="actionsBlock">
-                  <div id="emailInputLabel">
-                    <label for="titleInput">
-                      Notification title
-                    </label>
-
-                    <input
-                      type="text"
-                      id="titleInput"
-                      name="titleInput"
-                      placeholder="notification title"
-                      .value="${this.notificationTitle}"
-                    />
-                  </div>
-
-                  <div id="emailInputLabel">
-                    <label for="bodyInput">
-                      Notification body
-                    </label>
-
-                    <input
-                      type="text"
-                      id="bodyInput"
-                      name="bodyInput"
-                      placeholder="notification body"
-                      .value="${this.notificationBody}"
-                    />
-                  </div>
-
-                  <div id="emailInputLabel">
-                    <label for="icon-url-input">
-                      Icon path for the badge notification
-                    </label>
-                    <input
-                      type="text"
-                      id="iconUrlInput"
-                      name="icon-url-input"
-                      placeholder="https://www.example/images/icon.png"
-                      .value="${this.notificationIcon}"
-                    />
-                  </div>
-                </div>
-
-                <button id="sendButton" @click=${this.sendNotification}>
-                  Send Notification
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="rightColumn">
-          <img src="/Images/top.png" />
-          <img src="/Images/bottom.png" />
-        </section>
-      </div>
-    `}};__decorate([property({type:String})],pwabpush.prototype,"swCode",void 0),__decorate([property({type:String})],pwabpush.prototype,"userEmail",void 0),__decorate([property({type:String})],pwabpush.prototype,"notificationTitle",void 0),__decorate([property({type:String})],pwabpush.prototype,"notificationBody",void 0),__decorate([property({type:String})],pwabpush.prototype,"notificationIcon",void 0),__decorate([property({type:String})],pwabpush.prototype,"url",void 0),pwabpush=__decorate([customElement("pwab-push")],pwabpush);export{pwabpush};
-//# sourceMappingURL=pwab-push.js.map
+    ).then((res) => res.json());
+  } catch (e) {
+    console.log("failed to send notification");
+  }
+}
+`},vanilla=[vanillaCode,sendNotificationScript],react=[vanillaCode,sendNotificationScript],angular=[angularCommandLine,angularCode,sendNotificationScript],vue=[vanillaCode,sendNotificationScript];var sampleCode=/*#__PURE__*/Object.freeze({__proto__:null,get framework(){return framework},vanillaCode:vanillaCode,angularCommandLine:angularCommandLine,angularCode:angularCode,landingScript:landingScript,sendNotificationScript:sendNotificationScript,vanilla:vanilla,react:react,angular:angular,vue:vue}),__decorate=function(e,t,n,a){var o,s=arguments.length,p=3>s?t:null===a?a=Object.getOwnPropertyDescriptor(t,n):a;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)p=Reflect.decorate(e,t,n,a);else for(var l=e.length-1;0<=l;l--)(o=e[l])&&(p=(3>s?o(p):3<s?o(t,n,p):o(t,n))||p);return 3<s&&p&&Object.defineProperty(t,n,p),p};let pwabsamples=class extends LitElement{constructor(){super(),this.theme="lighter",this.showCopyButton=!1,this.color="#F0F0F0",this.showToolbar=!1,this.showOverlay=!1,this.textCopied=!1,this.errors=[]}static get styles(){return css`.codeHeader{padding-bottom:16px;display:flex;justify-content:space-between;align-items:center;z-index:9999}.codeHeader:not(:first-child){padding-top:16px}.codeHeader h3{font-family:sans-serif;font-style:normal;font-weight:600;font-size:16px;margin:0;line-height:24px;padding-left:1em;width:60%}.codeHeader div{width:20em}.code-sample{max-height:600px;margin:0 16px;overflow:scroll}.copyButton{background:#c5c5c5;color:#3c3c3c;border:none;border-radius:20px;font-weight:700;font-size:12px;padding-top:3px;padding-bottom:5px;padding-right:9px;padding-left:9px;margin-right:2em}.fas{font-family:"Font Awesome 5 Free";font-weight:900;-webkit-font-smoothing:antialiased;display:inline-block;font-style:normal;font-variant:normal;text-rendering:auto;line-height:1;box-sizing:border-box;font-size:12px}@media (max-width:1079px){.codeHeader h3{font-size:12px}}`}render(){const e=sampleCode[this.code],t=e.length-1;return html`<div class=pwab-sample>${e.map(e=>html`${this.codeHeader(e)}<pre class=code-sample>${e.code}</pre>${t?void 0:html`<br>`}`)}</div>`}codeHeader(e){const t=this.showCopyButton?html`<button @click=${()=>{this.copy(e)}} class=copyButton><i class="fas fa-copy platformIcon"></i> Copy</button>`:void 0,n=this.textCopied?html`<div id=copyToast>Code Copied</div>`:void 0;return html`<div class=codeHeader><h3>${e.title}</h3>${t} ${n}</div>`}async copy(e){try{await navigator.clipboard.writeText(e.code),this.textCopied=!0,setTimeout(()=>{this.textCopied=!1},1300)}catch(e){console.error(e)}}showErrorOverlay(){this.showOverlay=!this.showOverlay}closeOverlay(){this.showOverlay=!1}getCode(){return sampleCode[this.code]}};__decorate([property({type:String})],pwabsamples.prototype,"theme",void 0),__decorate([property({type:String})],pwabsamples.prototype,"code",void 0),__decorate([property({type:Boolean,attribute:"show-copy"})],pwabsamples.prototype,"showCopyButton",void 0),__decorate([property({type:String})],pwabsamples.prototype,"color",void 0),__decorate([property({type:Boolean,attribute:"toolbar"})],pwabsamples.prototype,"showToolbar",void 0),__decorate([property({type:Boolean,attribute:"overlay"})],pwabsamples.prototype,"showOverlay",void 0),pwabsamples=__decorate([customElement("pwab-samples")],pwabsamples);export{pwabsamples};
+//# sourceMappingURL=pwab-samples.js.map
