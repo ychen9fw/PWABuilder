@@ -3,19 +3,16 @@
     <HubHeader></HubHeader>
 
     <div id="pushContentContainer">
-      <pwab-push url="{{ pushUrl }}"></pwab-push>
+      <pwab-push :url="pushUrl"></pwab-push>
     </div>
   </main>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { State, namespace } from "vuex-class";
 import Component from "nuxt-class-component";
 import HubHeader from "~/components/HubHeader.vue";
-import { name as push } from "~/store/modules/serviceworker/push";
-
-const PushState = namespace(push, State);
+import { pushUrl as url } from "~/store/modules/serviceworker/push";
 
 @Component({
   components: {
@@ -23,7 +20,7 @@ const PushState = namespace(push, State);
   }
 })
 export default class extends Vue {
-  @PushState pushUrl;
+  pushUrl = url;
 }
 </script>
 
