@@ -17,6 +17,7 @@
             id="emailInput"
             name="emailInput"
             placeholder="janedoe@something.com"
+            aria-label="push registered email"
             v-model.trim="pushState.email"
           />
         </div>
@@ -28,6 +29,7 @@
             type="text"
             id="privateKeyInput"
             name="privatekeyinput"
+            aria-label="push registered private key"
             placeholder="vld88IhWi_NFrkB0s8jKNdl5Y-YyzF7oQKgNM6CIDpM"
             v-model.trim="pushState.privateKey"
           />
@@ -40,6 +42,7 @@
             type="text"
             id="publicKeyInput"
             name="publickeyInput"
+            aria-label="push registered public key"
             placeholder="BMCRD0PP23_mhf7IWI1FLfw219PtjqV63XovTHqYdXgKLaLykCNJ8axD5hz4etTLI9bVfjMPIZUamPg3A5ZvXK4"
             v-model.trim="pushState.publicKey"
           />
@@ -52,6 +55,7 @@
             type="text"
             id="titleInput"
             name="titleInput"
+            aria-label="title text for push notification"
             placeholder="Test Notification title"
             v-model.trim="pushState.title"
           />
@@ -64,6 +68,7 @@
             type="text"
             id="bodyInput"
             name="bodyInput"
+            aria-label="body text for push notification"
             placeholder="Test Notification body"
             v-model.trim="pushState.notification"
           />
@@ -76,6 +81,7 @@
             type="text"
             id="iconInput"
             name="iconInput"
+            aria-label="url for push notification icon"
             placeholder="https://www.siteurl.com/images/image.png"
             v-model.trim="pushState.iconUrl"
           />
@@ -83,7 +89,10 @@
       </div>
 
       <div id="testActionBlock">
-        <button @click="sendTestNotification">Send Test Notification</button>
+        <button
+          aria-label="send test notification"
+          @click="sendTestNotification"
+        >Send Test Notification</button>
       </div>
     </div>
   </main>

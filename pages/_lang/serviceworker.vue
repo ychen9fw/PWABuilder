@@ -23,20 +23,20 @@
               </div>
 
               <div id="pushModalContentOptions">
-                <nuxt-link to="/push">
-                  <img src="/Images/newSetup.png"></img>
+                <nuxt-link to="/push" aria-labelledby="createPushSetup">
+                  <img src="/Images/newSetup.png" />
 
                   <div>
-                    <h4>Create a New Setup</h4>
+                    <h4 id="createPushSetup">Create a New Setup</h4>
                     <p>Create a new push notification setup</p>
                   </div>
                 </nuxt-link>
 
-                <nuxt-link to="/test">
-                  <img src="/Images/pushTest.png"></img>
+                <nuxt-link to="/test" aria-labelledby="testPushSetup">
+                  <img src="/Images/pushTest.png" />
 
                   <div>
-                    <h4>Test Push Notifications</h4>
+                    <h4 id="testPushSetup"> Test Push Notifications</h4>
                     <p>Already setup push notifications? Test them out here</p>
                   </div>
                 </nuxt-link>
@@ -401,6 +401,7 @@ footer a {
 
   cursor: pointer;
   background: none;
+  border: none;
 }
 
 #pushLink img {
@@ -544,6 +545,10 @@ footer a {
   font-size: 14px;
   line-height: 21px;
   opacity: 0.6;
+}
+
+#pushModalCancel {
+    border: none;
 }
 
 #sideBySide {
