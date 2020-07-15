@@ -9,7 +9,7 @@
           <p>{{ $t("serviceworker.summary") }}</p>
 
           <button id="pushLink" @click="openPushModal()">
-            <img src="/Images/test.png"></img>
+            <img src="/Images/test.png" />
             Add support for push notifications
           </button>
 
@@ -36,7 +36,7 @@
                   <img src="/Images/pushTest.png" />
 
                   <div>
-                    <h4 id="testPushSetup"> Test Push Notifications</h4>
+                    <h4 id="testPushSetup">Test Push Notifications</h4>
                     <p>Already setup push notifications? Test them out here</p>
                   </div>
                 </nuxt-link>
@@ -45,19 +45,22 @@
               <div id="pushModalCancelWrapper">
                 <button id="pushModalCancel" @click="closePushModal()">Cancel</button>
               </div>
-
             </div>
           </div>
         </header>
 
         <div id="inputSection">
-          <form @submit.prevent="download" @keydown.enter.prevent="download">
+          <form @submit.prevent="download" @keydown.enter.prevent="download" role="radiogroup">
             <div
               class="inputContainer"
               v-for="sw in serviceworkers"
               :key="sw.title"
               @click="selectServiceWorker(sw.id)"
               v-bind:class="{ active: serviceworker$ === sw.id }"
+              :aria-labelledby="'serviceWorkerOption' + sw.id"
+              :aria-checked="serviceworker$ === sw.id"
+              role="radio"
+              tabindex="0"
             >
               <label class="l-generator-label" :for="sw.id">
                 <div class="inputDiv">
@@ -70,7 +73,7 @@
                   >-->
 
                   <div class="titleBox">
-                    <h4>{{ sw.title }}</h4>
+                    <h4 :id="'serviceWorkerOption' + sw.id">{{ sw.title }}</h4>
 
                     <!--<i v-pre v-if="serviceworker$ === sw.id" class="fas fa-check"></i>-->
                   </div>
@@ -95,7 +98,9 @@
             <span v-if="isBuilding">
               <Loading
                 :active="true"
-              <Loading :active="true" class="u-display-inline_block u-margin-left-sm" />
+                &#x26;#x26;#x26;#x26;#x26;#x26;#x26;#x26;#x26;#x3C;Loading
+                class="u-display-inline_block u-margin-left-sm"
+                aria-label="loading"
               />
             </span>
           </button>
@@ -133,7 +138,7 @@
           monaco-id="topViewerId"
         >
           <h3>
-          <h3>Add this code to your landing page in a &lt;script&gt; tag:</h3>
+            <h3>Add this code to your landing page in a &lt;script&gt; tag:</h3>
           </h3>
         </CodeViewer>
       </section>
@@ -229,7 +234,7 @@ export default class extends Vue {
   }
 
   openPushModal() {
-    console.log('hello world', !this.openModal);
+    console.log("hello world", !this.openModal);
     this.openModal = !this.openModal;
   }
 
@@ -346,7 +351,6 @@ export default class extends Vue {
 
 declare var awa: any;
 
-
 Vue.prototype.$awa = function(config) {
   if (awa) {
     awa.ct.capturePageView(config);
@@ -384,7 +388,6 @@ footer a {
   color: #707070;
   text-decoration: underline;
 }
-
 
 #swHeader {
   margin-bottom: 40px;
@@ -435,8 +438,9 @@ footer a {
 }
 
 #pushModalContent {
-  background: #FFFFFF;
-  box-shadow: 0px 25px 26px rgba(32, 36, 50, 0.25), 0px 5px 9px rgba(51, 58, 83, 0.53);
+  background: #ffffff;
+  box-shadow: 0px 25px 26px rgba(32, 36, 50, 0.25),
+    0px 5px 9px rgba(51, 58, 83, 0.53);
   border-radius: 10px;
 
   padding-left: 30px;
@@ -465,11 +469,11 @@ footer a {
   font-size: 24px;
   line-height: 36px;
   letter-spacing: -0.02em;
-  color: #3C3C3C;
+  color: #3c3c3c;
 }
 
 #pushModalContent #pushModalContentHeader #pushHeaderP {
-  color: #3C3C3C;
+  color: #3c3c3c;
   font-size: 16px;
   line-height: 22px;
   margin-top: 8px;
@@ -495,17 +499,18 @@ footer a {
   font-weight: bold;
   font-size: 18px;
   line-height: 22px;
-  color: #9337D8;
+  color: #9337d8;
 }
 
 #pushModalContentOptions a p {
-  color: #3C3C3C;
+  color: #3c3c3c;
   font-weight: normal;
   font-size: 12px;
   line-height: 16px;
 }
 
-#pushModalContentOptions a h4, #pushModalContentOptions a p {
+#pushModalContentOptions a h4,
+#pushModalContentOptions a p {
   margin-bottom: 0;
   margin-top: 0 !important;
 }
@@ -514,7 +519,7 @@ footer a {
   margin-right: 17px;
 }
 
-@media(max-width: 430px) {
+@media (max-width: 430px) {
   #pushModalContent {
     margin-left: 3em;
     margin-right: 3em;
@@ -540,7 +545,7 @@ footer a {
 
 #pushModalCancelWrapper button {
   background: none;
-  color: #3C3C3C;
+  color: #3c3c3c;
   font-weight: 600;
   font-size: 14px;
   line-height: 21px;
@@ -548,7 +553,7 @@ footer a {
 }
 
 #pushModalCancel {
-    border: none;
+  border: none;
 }
 
 #sideBySide {
