@@ -477,6 +477,12 @@
               />
             </label>
           </div>
+          <div v-if="this.iconFileErrorNoneUploaded" class="l-generator-field">
+            <p id="uploadImageError" role="alert">{{ $t('generate.upload_image_error_none_uploaded') }}</p>
+          </div>
+          <div v-if="this.iconFileErrorIncorrectType" class="l-generator-field">
+            <p id="uploadImageError" role="alert">{{ $t('generate.upload_image_error_incorrect_type') }}</p>
+          </div>      
         </section>
       </Modal>
     </main>
@@ -538,6 +544,8 @@ export default class extends Vue {
   public urlsForScreenshot = [{ value: "" }];
   public urlsForScreenshotValues = [];
   private iconFile: File | null = null;
+  public iconFileErrorNoneUploaded = false;
+  public iconFileErrorIncorrectType = false;
   public error: string | null = null;
   public seeEditor = true;
   public basicManifest = false;
@@ -805,6 +813,20 @@ export default class extends Vue {
       return;
     }
     this.iconFile = target.files[0];
+    this.iconFileErrorNoneUploaded = false;
+    // Check if file type is an image
+    if (this.iconFile && this.iconFile.name) {
+      const supportedFileTypes = ['.png', '.jpg', '.svg'];
+      var found = supportedFileTypes.find(fileType => this.iconFile.name.endsWith(fileType));
+      if (!found) {
+        this.iconFileErrorIncorrectType = true;
+      } else {
+        this.iconFileErrorIncorrectType = false;
+      }
+    } else {
+      this.iconFileErrorIncorrectType = false;
+    }
+
   }
 
   private getImagesWithEmbedded(icons: generator.Icon[]): generator.Icon[] {
@@ -915,8 +937,10 @@ export default class extends Vue {
   public async onSubmitIconModal(): Promise<void> {
     const $iconsModal = this.$refs.iconsModal as Modal;
     if (!this.iconFile) {
+      this.iconFileErrorNoneUploaded = true;
       return;
     }
+    this.iconFileErrorNoneUploaded = false;
     $iconsModal.showLoading();
     if (this.iconCheckMissing) {
       await this.generateMissingImages(this.iconFile);
@@ -936,6 +960,8 @@ export default class extends Vue {
 
   public onCancelIconModal(): void {
     this.iconFile = null;
+    this.iconFileErrorNoneUploaded = false;
+    this.iconFileErrorIncorrectType = false;
     this.showingIconModal = false;
   }
 
@@ -1004,6 +1030,66 @@ declare var awa: any;
 
 <style lang="scss">
 @import "~assets/scss/base/variables";
+
+.custom-file-upload {
+  label {
+    display: block;
+  }
+
+  input, label {
+      margin: .4rem 0;
+  }
+
+  .image-upload {
+    margin-bottom: 10px;
+    height: 40px;
+  }
+
+  .custom-file-label {
+    width: 620px;
+    float: right;
+    font-size: 16px;
+    padding-top: 13px;
+    cursor: default;
+  }
+  
+  .custom-file-input {
+    color: transparent;
+    width: 155px;
+    cursor: pointer;
+  }
+
+  .custom-file-input::-webkit-file-upload-button {
+    visibility: hidden;
+  }
+
+  .custom-file-input::before {
+    content: 'Choose File';
+    width: 154px;
+    height: 40px;
+    background: transparent;
+    color: #3c3c3c;
+    font-weight: bold;
+    border-radius: 20px;
+    border: 1px solid #3c3c3c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: sans-serif;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 21px;
+  }
+
+  .custom-file-input:hover::before {
+    border-color: #9337d8;
+  }
+
+  .custom-file-input:active, :focus {
+    outline: 0;
+  }
+}
 
 #manifestCode {
   width: 100%;
@@ -1218,8 +1304,20 @@ footer a {
   letter-spacing: -0.02em;
 }
 #genMissingLabel input {
-  height: 2em;
-  width: 2em;
+  height: 1em;
+  width: 1em;
+  margin-left: 15px;
+  margin-top: 5px;
+}
+#uploadImageError {
+  display: flex;
+  font-family: sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -0.02em;
+  color: #db3457;
 }
 #sideBySide {
   background: white;
