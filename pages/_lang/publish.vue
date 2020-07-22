@@ -379,7 +379,11 @@
                   class="form-control"
                   id="monochromeIconUrlInput"
                   placeholder="https://myawesomepwa.com/512x512-monochrome.png"
+<<<<<<< HEAD
                   v-model="androidForm.monochromeIconurl"
+=======
+                  v-model="androidForm.monochromeIconUrl"
+>>>>>>> 9448e127f752f8e040997436979f55290d98cc73
                 />
               </div>
 
