@@ -1094,6 +1094,31 @@
                 />
               </section>
             </div>
+
+            <div
+              @mouseover="platCardHover($event)"
+              @mouseleave="platCardUnHover($event)"
+              id="pwaHuaweiCard"
+              class="pwaCard"
+            >
+              <div class="pwaCardHeaderBlock">
+                <img src="@/assets/images/huawei_logo.png" width="100" height="50"/>
+                <h2>Huawei</h2>
+              </div>
+
+              <p>
+                Upload to Huawei App Gallery
+              </p>
+
+              <section class="platformDownloadBar">
+                <Download
+                  class="platformDownloadButton"
+                  platform="macos"
+                  message="Download"
+                  aria-label="Download"
+                />
+              </section>
+            </div>
           </ul>
         </div>
         <div id="skeletonSpan" v-if="!manifest">
@@ -1505,7 +1530,7 @@ export default class extends Vue {
 
     if (this.androidForm.signingMode === "new") {
       return "Type a new password or leave empty to use a generated one";
-    } 
+    }
 
     return "";
   }
